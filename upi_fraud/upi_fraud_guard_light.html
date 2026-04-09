@@ -745,6 +745,45 @@ body::after{
             </div>
           </div>
 
+          <!-- S4warn: Fraud Warning Popup -->
+          <div class="pview gone-r" id="s4warn">
+            <div style="display:flex;flex-direction:column;height:100%;background:#FAFBFF">
+              <div class="gpay-hdr" style="margin-top:34px">
+                <div class="g-ico">G</div>
+                <span class="gh-title">Google Pay</span>
+              </div>
+              <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:16px">
+                <!-- popup card -->
+                <div style="background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.14);padding:22px 18px;width:100%;text-align:center;animation:pop .4s cubic-bezier(.4,0,.2,1)">
+
+                  <!-- warning icon -->
+                  <div style="width:52px;height:52px;border-radius:50%;background:rgba(212,128,0,0.13);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D48000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  </div>
+
+                  <div id="warnTitle" style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:6px;font-family:'Syne',sans-serif">Confirm Transaction</div>
+
+                  <!-- risk score pill -->
+                  <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(217,48,37,0.1);border:1px solid rgba(217,48,37,0.25);border-radius:20px;padding:4px 12px;margin-bottom:10px">
+                    <div style="width:6px;height:6px;border-radius:50%;background:#D93025"></div>
+                    <span style="font-size:11px;font-weight:700;color:#D93025;font-family:'Space Mono',monospace">RISK SCORE <span id="warnScore">82%</span></span>
+                  </div>
+
+                  <div id="warnSub" style="font-size:11px;color:var(--text3);margin-bottom:14px;line-height:1.6">Please confirm this transaction.</div>
+
+                  <!-- reasons list -->
+                  <div id="warnReasons" style="display:flex;flex-direction:column;gap:6px;margin-bottom:18px;text-align:left"></div>
+
+                  <!-- Allow button -->
+                  <button id="warnAllowBtn" onclick="userAllowedAnyway()" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-size:13px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 4px 16px var(--glow);margin-bottom:8px;transition:all .2s">Confirm Payment</button>
+
+                  <!-- Cancel button -->
+                  <button onclick="userCancelledTransaction()" style="width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--border2);background:transparent;font-size:13px;font-weight:600;font-family:'Syne',sans-serif;color:var(--text2);cursor:pointer;transition:all .2s">Cancel Transaction</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- S4a: Success -->
           <div class="pview gone-r" id="s4ok">
             <div class="res-screen">
@@ -758,14 +797,61 @@ body::after{
             </div>
           </div>
 
-          <!-- S4b: Blocked -->
+          <!-- S4b: Blocked / Cancelled -->
           <div class="pview gone-r" id="s4no">
-            <div class="res-screen">
-              <div class="res-ico no">✕</div>
-              <div class="res-ttl no">Transaction Blocked!</div>
-              <div class="res-sub">Fraud engine intercepted this<br/>transaction in real-time.</div>
-              <div class="res-reasons" id="resReasons"></div>
-              <button class="res-btn" onclick="loadScenario(cur)">Try Again</button>
+            <div style="display:flex;flex-direction:column;height:100%;background:#FAFBFF">
+              <!-- header -->
+              <div class="gpay-hdr" style="margin-top:34px;justify-content:space-between">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div class="g-ico" style="background:linear-gradient(135deg,#D93025,#B02018)">←</div>
+                  <span class="gh-title">Payment</span>
+                </div>
+                <span style="font-size:12px;font-weight:700;color:var(--accent);font-family:'Syne',sans-serif">AuraPay</span>
+              </div>
+
+              <!-- body -->
+              <div style="flex:1;padding:18px 16px;display:flex;flex-direction:column;align-items:center;text-align:center">
+
+                <!-- cancel icon -->
+                <div style="width:64px;height:64px;border-radius:50%;background:rgba(217,48,37,0.12);display:flex;align-items:center;justify-content:center;margin-bottom:12px;animation:pop .5s cubic-bezier(.4,0,.2,1);box-shadow:0 0 24px rgba(217,48,37,0.15)">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D93025" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </div>
+
+                <div style="font-size:16px;font-weight:800;color:#D93025;margin-bottom:4px;font-family:'Syne',sans-serif">Transaction Cancelled</div>
+                <div style="font-size:10px;color:var(--text3);line-height:1.6;margin-bottom:14px">Payment stopped for safety.<br/>Your balance remains untouched.</div>
+
+                <!-- protection badge -->
+                <div style="display:flex;align-items:center;gap:7px;background:rgba(91,79,240,0.07);border:1px solid rgba(91,79,240,0.2);border-radius:20px;padding:6px 14px;margin-bottom:16px">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <span style="font-size:10px;font-weight:700;color:var(--accent);font-family:'Space Mono',monospace">PROTECTION ACTIVE</span>
+                </div>
+                <div style="font-size:9px;color:var(--text3);font-family:'Space Mono',monospace;margin-bottom:16px">Auto-block security filter</div>
+
+                <!-- risk reasons -->
+                <div class="res-reasons" id="resReasons" style="width:100%;margin-bottom:14px"></div>
+
+                <!-- date + ref row -->
+                <div style="display:flex;justify-content:space-between;width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:14px">
+                  <div style="text-align:left">
+                    <div style="font-size:9px;color:var(--text3);font-family:'Space Mono',monospace;margin-bottom:2px">DATE</div>
+                    <div style="font-size:11px;font-weight:600;color:var(--text);font-family:'Syne',sans-serif" id="cancelDate">—</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div style="font-size:9px;color:var(--text3);font-family:'Space Mono',monospace;margin-bottom:2px">REF ID</div>
+                    <div style="font-size:11px;font-weight:600;color:var(--accent);font-family:'Space Mono',monospace" id="cancelRef">—</div>
+                  </div>
+                </div>
+
+                <!-- buttons -->
+                <button class="res-btn" style="width:100%;margin-bottom:8px" onclick="loadScenario(cur)">Back to Payment</button>
+                <button style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border2);background:var(--surface2);font-size:12px;font-weight:600;font-family:'Syne',sans-serif;color:var(--text2);cursor:pointer" onclick="show('s4no','r');document.getElementById('mlCard').style.display='block'">View Transaction Logs</button>
+
+                <!-- encrypted footer -->
+                <div style="margin-top:14px;display:flex;align-items:center;gap:5px">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <span style="font-size:9px;color:var(--text3);font-family:'Space Mono',monospace">ENCRYPTED SAFETY PROTOCOL v4.2</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -896,124 +982,81 @@ body::after{
 </footer>
 
 <script>
-// ══════════════════════════════════════════════════════════
-// BACKEND CONFIG — Real ML API Integration
-// ══════════════════════════════════════════════════════════
+// ══ CONFIG ══
 let API_BASE = 'http://localhost:8000';
-let USE_REAL_API = false;    // switches to true when backend is reachable
+let USE_REAL_API = false;
 let backendConnected = false;
 
-async function testBackendConnection() {
-  const badge = document.getElementById('backendBadge');
-  const statusEl = document.getElementById('backendStatus');
-  const urlInput = document.getElementById('apiUrlInput');
-  API_BASE = urlInput.value.trim().replace(/\/$/, '');
-
-  badge.className = 'backend-badge connecting';
-  statusEl.textContent = 'Backend: Connecting…';
-
-  try {
-    const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(4000) });
-    if (res.ok) {
-      const data = await res.json();
-      badge.className = 'backend-badge connected';
-      statusEl.textContent = `Backend: Connected (threshold: ${data.threshold})`;
-      backendConnected = true;
-      if (!USE_REAL_API) switchToLiveMode();
+async function testBackendConnection(){
+  const badge=document.getElementById('backendBadge');
+  const statusEl=document.getElementById('backendStatus');
+  API_BASE=document.getElementById('apiUrlInput').value.trim().replace(/\/$/,'');
+  badge.className='backend-badge connecting';
+  statusEl.textContent='Backend: Connecting…';
+  try{
+    const res=await fetch(API_BASE+'/health',{signal:AbortSignal.timeout(4000)});
+    if(res.ok){
+      const data=await res.json();
+      badge.className='backend-badge connected';
+      statusEl.textContent='Backend: Connected (threshold: '+data.threshold+')';
+      backendConnected=true;
+      if(!USE_REAL_API) switchToLiveMode();
       return true;
     }
-  } catch(e) {}
-
-  badge.className = 'backend-badge offline';
-  statusEl.textContent = 'Backend: Offline (using mock)';
-  backendConnected = false;
+  }catch(e){}
+  badge.className='backend-badge offline';
+  statusEl.textContent='Backend: Offline (using mock)';
+  backendConnected=false;
   return false;
 }
-
-function switchToLiveMode() {
-  USE_REAL_API = true;
-  const btn = document.getElementById('modeToggle');
-  btn.className = 'api-mode-toggle live';
-  btn.textContent = '✅ Live ML Mode';
-  document.getElementById('mlEngineLabel').textContent = 'FastAPI ML Engine';
+function switchToLiveMode(){
+  USE_REAL_API=true;
+  const btn=document.getElementById('modeToggle');
+  btn.className='api-mode-toggle live'; btn.textContent='✅ Live ML Mode';
+  document.getElementById('mlEngineLabel').textContent='FastAPI ML Engine';
 }
-
-function switchToMockMode() {
-  USE_REAL_API = false;
-  const btn = document.getElementById('modeToggle');
-  btn.className = 'api-mode-toggle mock';
-  btn.textContent = '⚠ Mock Mode';
-  document.getElementById('mlEngineLabel').textContent = 'ML Engine';
+function switchToMockMode(){
+  USE_REAL_API=false;
+  const btn=document.getElementById('modeToggle');
+  btn.className='api-mode-toggle mock'; btn.textContent='⚠ Mock Mode';
+  document.getElementById('mlEngineLabel').textContent='ML Engine';
 }
+function toggleMode(){ USE_REAL_API ? switchToMockMode() : testBackendConnection(); }
 
-function toggleMode() {
-  if (USE_REAL_API) {
-    switchToMockMode();
-  } else {
-    testBackendConnection();
-  }
-}
-
-// Call real backend /predict endpoint
-async function callMLBackend(scenario) {
-  const s = scenario;
-  const h = s.hour;
-  const payload = {
-    transaction_type:  s.txType,
-    transaction_city:  s.city || userCity || 'Delhi',
-    hour_of_day:       h,
-    is_odd_hour:       (h < 6 || h > 22) ? 1 : 0,
-    is_new_device:     s.dev,
-    is_new_payee:      1,
-    location_mismatch: s.locMismatch,
-    txns_last_1hr:     s.vel,
-    pin_attempts:      s.pin,
-    ip_risk_score:     s.ipRisk,
-    sim_change_flag:   s.sim,
-    kyc_status:        s.kyc,
-    merchant_category: s.txType === 'P2P' ? 'peer' : s.txType === 'Bill' ? 'utility' : 'retail'
+async function callMLBackend(s){
+  const h=s.hour;
+  const payload={
+    transaction_type:s.txType, transaction_city:s.city||userCity||'Delhi',
+    hour_of_day:h, is_odd_hour:(h<6||h>22)?1:0,
+    is_new_device:s.dev, is_new_payee:1, location_mismatch:s.locMismatch,
+    txns_last_1hr:s.vel, pin_attempts:s.pin, ip_risk_score:s.ipRisk,
+    sim_change_flag:s.sim, kyc_status:s.kyc,
+    merchant_category:s.txType==='P2P'?'peer':s.txType==='Bill'?'utility':'retail'
   };
-
-  const res = await fetch(`${API_BASE}/predict`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(8000)
-  });
-
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const res=await fetch(API_BASE+'/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(8000)});
+  if(!res.ok) throw new Error('HTTP '+res.status);
   return await res.json();
 }
 
-// Mock scoring (fallback when backend is offline)
-function mockScore(s) {
-  let v = 0;
-  if (s.ipRisk > 0.5)        v += 0.28;
-  if (s.sim === 1)           v += 0.22;
-  if (s.dev === 1)           v += 0.15;
-  if (s.pin >= 3)            v += 0.12;
-  if (s.pin === 2)           v += 0.05;
-  if (s.vel >= 5)            v += 0.14;
-  else if (s.vel >= 3)       v += 0.07;
-  if (s.hour < 6 || s.hour > 22) v += 0.10;
-  if (s.kyc === 2)           v += 0.15;
-  if (s.amount > 10000)      v += 0.06;
-  if (s.locMismatch === 1)   v += 0.12;
-  return Math.min(0.97, Math.round((v + s.ipRisk * 0.15) * 100) / 100);
+function mockScore(s){
+  let v=0;
+  if(s.ipRisk>0.5) v+=0.28; if(s.sim===1) v+=0.22; if(s.dev===1) v+=0.15;
+  if(s.pin>=3) v+=0.12; else if(s.pin===2) v+=0.05;
+  if(s.vel>=5) v+=0.14; else if(s.vel>=3) v+=0.07;
+  if(s.hour<6||s.hour>22) v+=0.10; if(s.kyc===2) v+=0.15;
+  if(s.amount>10000) v+=0.06; if(s.locMismatch===1) v+=0.12;
+  return Math.min(0.97,Math.round((v+s.ipRisk*0.15)*100)/100);
 }
 
-// ══════════════════════════════════════
-// SCENARIOS
-// ══════════════════════════════════════
-const SC = {
-  normal: { name:'Anjali Mehta',  vpa:'anjali@okaxis',    amount:350,   txType:'P2M', hour:11, ipRisk:0.06, sim:0, dev:0, pin:1, vel:1, kyc:1, city:'Mumbai',    locMismatch:0 },
-  fraud:  { name:'Rohit Sharma',  vpa:'rohit@okhdfcbank', amount:18500, txType:'P2P', hour:23, ipRisk:0.72, sim:1, dev:1, pin:2, vel:6, kyc:1, city:'Unknown',   locMismatch:1 },
-  sim:    { name:'Deepak Verma',  vpa:'deepak@ybl',       amount:49999, txType:'P2P', hour:3,  ipRisk:0.85, sim:1, dev:1, pin:3, vel:9, kyc:2, city:'Bhopal',    locMismatch:1 },
-  custom: { name:'Kavya Iyer',    vpa:'kavya@oksbi',      amount:1200,  txType:'Bill',hour:16, ipRisk:0.15, sim:0, dev:0, pin:1, vel:2, kyc:1, city:'Bangalore', locMismatch:0 }
+// ══ SCENARIOS ══
+const SC={
+  normal:{name:'Anjali Mehta', vpa:'anjali@okaxis',    amount:350,   txType:'P2M',hour:11,ipRisk:0.06,sim:0,dev:0,pin:1,vel:1,kyc:1,city:'Mumbai',  locMismatch:0},
+  fraud: {name:'Rohit Sharma', vpa:'rohit@okhdfcbank', amount:18500, txType:'P2P',hour:23,ipRisk:0.72,sim:1,dev:1,pin:2,vel:6,kyc:1,city:'Unknown',  locMismatch:1},
+  sim:   {name:'Deepak Verma', vpa:'deepak@ybl',       amount:49999, txType:'P2P',hour:3, ipRisk:0.85,sim:1,dev:1,pin:3,vel:9,kyc:2,city:'Bhopal',   locMismatch:1},
+  custom:{name:'Kavya Iyer',   vpa:'kavya@oksbi',      amount:1200,  txType:'Bill',hour:16,ipRisk:0.15,sim:0,dev:0,pin:1,vel:2,kyc:1,city:'Bangalore',locMismatch:0}
 };
 
 let cur='normal', pin='', busy=false;
-let gDecision=null, gReasons=null;
 let feedRunning=false, feedInterval=null;
 let sessionStats={total:0,blocked:0,review:0,cleared:0,scores:[]};
 let userLat=null, userLon=null, userCity='Unknown';
@@ -1026,45 +1069,35 @@ let userLat=null, userLon=null, userCity='Unknown';
   setTimeout(tick,10000);
 })();
 
-// ══════════════════════════════════════
-// LOCATION DETECTION
-// ══════════════════════════════════════
+// ══ LOCATION ══
 function requestLocation(){
-  if(!navigator.geolocation){ setLocationFallback(); return; }
+  if(!navigator.geolocation){setLocationFallback();return;}
   document.getElementById('navLocBadge').textContent='📍 Locating…';
   navigator.geolocation.getCurrentPosition(
-    pos => onLocationSuccess(pos.coords.latitude, pos.coords.longitude),
-    err => setLocationFallback(),
-    {timeout:8000, maximumAge:60000}
+    pos=>onLocationSuccess(pos.coords.latitude,pos.coords.longitude),
+    ()=>setLocationFallback(),{timeout:8000,maximumAge:60000}
   );
 }
-
-async function onLocationSuccess(lat, lon){
+async function onLocationSuccess(lat,lon){
   userLat=lat; userLon=lon;
-  const latStr=lat.toFixed(4), lonStr=lon.toFixed(4);
-  let city=null, region=null;
+  let city='Unknown',region='';
   try{
-    const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,{headers:{'Accept-Language':'en'}});
+    const r=await fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lon+'&format=json',{headers:{'Accept-Language':'en'}});
     const d=await r.json();
-    city=d.address?.city||d.address?.town||d.address?.village||d.address?.county||'Unknown';
-    region=d.address?.state||'';
-    userCity=city;
-  }catch(e){ city='Unknown'; }
-
+    city=d.address?.city||d.address?.town||d.address?.village||'Unknown';
+    region=d.address?.state||''; userCity=city;
+  }catch(e){}
   const ipRisk=Math.random()*0.3;
-  const riskClass=ipRisk>0.5?'high':ipRisk>0.25?'med':'low';
-  document.getElementById('navLocBadge').textContent=`📍 ${city}${region?', '+region:''}`;
-  const banner=document.getElementById('locBanner');
-  banner.style.display='flex';
-  document.getElementById('locBannerText').textContent=`📍 Detected: ${city}${region?', '+region:''}`;
-  document.getElementById('locBannerCoords').textContent=`${latStr}°N, ${lonStr}°E`;
+  document.getElementById('navLocBadge').textContent='📍 '+city+(region?', '+region:'');
+  const banner=document.getElementById('locBanner'); banner.style.display='flex';
+  document.getElementById('locBannerText').textContent='📍 Detected: '+city+(region?', '+region:'');
+  document.getElementById('locBannerCoords').textContent=lat.toFixed(4)+'°N, '+lon.toFixed(4)+'°E';
   const riskEl=document.getElementById('locBannerRisk');
   riskEl.textContent=(ipRisk>0.5?'HIGH':ipRisk>0.25?'MEDIUM':'LOW')+' RISK';
-  riskEl.className='loc-risk '+riskClass;
+  riskEl.className='loc-risk '+(ipRisk>0.5?'high':ipRisk>0.25?'med':'low');
   updateLocationFeature(0,city,false);
-  document.getElementById('locMismatch').textContent=`IP risk: ${(ipRisk*100).toFixed(0)}% · Device registered`;
+  document.getElementById('locMismatch').textContent='IP risk: '+(ipRisk*100).toFixed(0)+'% · Device registered';
 }
-
 function setLocationFallback(){
   userCity='Bhopal';
   document.getElementById('navLocBadge').textContent='📍 Location: Bhopal';
@@ -1076,44 +1109,35 @@ function setLocationFallback(){
   updateLocationFeature(0,'Bhopal',false);
   document.getElementById('locMismatch').textContent='Default location · Enable GPS for real detection';
 }
-
-function updateLocationFeature(mismatch, city, isFraud){
+function updateLocationFeature(mismatch,city,isFraud){
   const lfVal=document.getElementById('lfVal');
   const lfMismatch=document.getElementById('lfMismatch');
   const locF=document.getElementById('locFeature');
   if(mismatch){
-    lfVal.textContent=city||'MISMATCH'; lfVal.style.color='var(--red)';
+    lfVal.textContent='MISMATCH'; lfVal.style.color='var(--red)';
+    lfMismatch.textContent='⚠ TX city vs GPS'; lfMismatch.style.color='var(--red)';
     locF.style.borderColor='rgba(217,48,37,0.35)'; locF.style.background='rgba(217,48,37,0.04)';
-    lfMismatch.textContent='⚠ Location mismatch detected'; lfMismatch.style.color='var(--red)';
   } else {
-    lfVal.textContent=city||userCity||'Verified'; lfVal.style.color='var(--green)';
-    locF.style.borderColor='rgba(91,79,240,0.18)';
-    locF.style.background='linear-gradient(90deg,rgba(91,79,240,0.05),rgba(139,77,221,0.03))';
-    lfMismatch.textContent='✓ Location verified'; lfMismatch.style.color='var(--green)';
+    lfVal.textContent=city||userCity||'Unknown'; lfVal.style.color='var(--green)';
+    lfMismatch.textContent='✓ Location OK'; lfMismatch.style.color='var(--green)';
+    locF.style.borderColor=''; locF.style.background='';
   }
 }
 
-setTimeout(requestLocation, 800);
-setTimeout(testBackendConnection, 1200);
-
-// ══════════════════════════════════════
-// SCREEN SWITCHER
-// ══════════════════════════════════════
-function show(id, from){
-  const all=['s1','s2','s3','s4ok','s4no'];
-  all.forEach(sid=>{
+// ══ SCREEN SWITCHER ══
+function show(id){
+  ['s1','s2','s3','s4warn','s4ok','s4no'].forEach(sid=>{
     const el=document.getElementById(sid);
+    if(!el) return;
     if(sid===id) el.className='pview here';
     else if(el.classList.contains('here')) el.className='pview gone-l';
     else el.className='pview gone-r';
   });
 }
 
-// ══════════════════════════════════════
-// LOAD SCENARIO
-// ══════════════════════════════════════
+// ══ LOAD SCENARIO ══
 function loadScenario(key){
-  cur=key; pin=''; busy=false; gDecision=null; gReasons=null;
+  cur=key; pin=''; busy=false;
   document.querySelectorAll('.s-btn').forEach((b,i)=>{
     b.classList.toggle('active',['normal','fraud','sim','custom'][i]===key);
   });
@@ -1125,14 +1149,12 @@ function loadScenario(key){
   document.getElementById('amtB').value=s.amount;
   document.getElementById('txType').value=s.txType;
   document.getElementById('mlCard').style.display='none';
-  updateLocationFeature(s.locMismatch, s.locMismatch?'Mismatch: '+s.city:s.city, s.locMismatch);
+  updateLocationFeature(s.locMismatch,s.locMismatch?'Mismatch: '+s.city:s.city,s.locMismatch);
   resetFlow(); resetFeats(); show('s1');
   for(let i=0;i<6;i++) document.getElementById('pd'+i).className='pdot';
 }
 
-// ══════════════════════════════════════
-// PIN INPUT
-// ══════════════════════════════════════
+// ══ PIN INPUT ══
 function goPin(){
   const s=SC[cur]; pin='';
   document.getElementById('pinPill').textContent=
@@ -1145,82 +1167,39 @@ function pk(k){
   pin+=k; updDots();
   if(pin.length===6) setTimeout(submitPIN,350);
 }
-function pdel(){ if(pin.length){pin=pin.slice(0,-1);updDots();} }
+function pdel(){ if(pin.length){pin=pin.slice(0,-1); updDots();} }
 function updDots(){
   for(let i=0;i<6;i++)
     document.getElementById('pd'+i).className='pdot'+(i<pin.length?' on':'');
 }
 
-// ══════════════════════════════════════
-// SUBMIT & PROCESS
-// ══════════════════════════════════════
+// ══ MAIN SUBMIT FLOW ══
 async function submitPIN(){
-  busy=true; show('s3');
-  runAnalysis();
-  await runProcScreen();
-}
+  if(busy) return;
+  busy=true;
+  show('s3');
 
-async function runProcScreen(){
+  // Step 1: Animated progress steps
   const steps=['Verifying PIN…','Connecting to NPCI…','Extracting ML features…','Running fraud model…','Awaiting decision…'];
   const pf=document.getElementById('progFill');
   const ps=document.getElementById('procStep');
   for(let i=0;i<steps.length;i++){
-    ps.style.opacity=0; await wait(80);
-    ps.textContent=steps[i]; ps.style.opacity=1;
+    ps.style.opacity=0;
+    await sleep(80);
+    ps.textContent=steps[i];
+    ps.style.opacity=1;
     pf.style.width=((i+1)/steps.length*80)+'%';
-    await wait(i===3?700:400);
+    await sleep(i===3?600:350);
   }
-  while(!gDecision) await wait(80);
-  pf.style.width='100%'; await wait(350);
 
+  // Step 2: Run ML scoring
   const s=SC[cur];
-  const amt=parseInt(document.getElementById('amtA').value);
-  if(gDecision==='ALLOW'){
-    document.getElementById('resAmt').textContent='₹'+amt.toLocaleString('en-IN');
-    document.getElementById('resTo').textContent='sent to '+s.name;
-    document.getElementById('resRef').textContent='REF: UPI'+Date.now().toString().slice(-8);
-    show('s4ok');
-  } else {
-    const rr=document.getElementById('resReasons');
-    rr.innerHTML=(gReasons||[]).slice(0,3).map(r=>`<div class="res-reason"><span>⚠</span>${r}</div>`).join('');
-    show('s4no');
-  }
-  busy=false;
-}
-
-// ══════════════════════════════════════
-// ML ANALYSIS — Real backend or Mock
-// ══════════════════════════════════════
-function fd(id,val,bad,good){
-  const el=document.getElementById(id);
-  el.textContent=val; el.className='fval'+(bad?' bad':good?' good':'');
-  el.closest('.fcell').classList.toggle('flagged',!!bad);
-}
-function setDot(i,st,t){
-  const its=document.querySelectorAll('#flowList .flow-item');
-  its[i].querySelector('.fdot').className='fdot '+st;
-  if(t!=null) its[i].querySelector('.ftime').textContent=t;
-}
-function resetFlow(){ document.querySelectorAll('#flowList .fdot').forEach(d=>d.className='fdot gray'); document.querySelectorAll('#flowList .ftime').forEach(t=>t.textContent='—'); }
-function resetFeats(){ ['fh','fo','fi','fs','fd','fp','fv','fk'].forEach(id=>{ const el=document.getElementById(id); el.textContent='—'; el.className='fval'; el.closest('.fcell').classList.remove('flagged'); }); }
-function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
-
-async function runAnalysis(){
-  gDecision=null; gReasons=null;
-  const s=SC[cur];
-  resetFlow(); resetFeats();
-  document.getElementById('mlCard').style.display='none';
-
-  setDot(0,'green','0ms');
-  await wait(300);
-  setDot(1,'green','42ms');
-  await wait(350);
-  setDot(2,'spin2');
-  await wait(400);
-  setDot(2,'green','42ms');
-  setDot(3,'spin2');
-
   const h=s.hour;
+  const THRESHOLD=0.35;
+  let prob, dec, reasons=[], respTime='8ms';
+
+  // Update feature display
+  updateFlowDots(s,h);
   fd('fh',h,h<6||h>22,!(h<6||h>22));
   fd('fo',(h<6||h>22)?1:0,h<6||h>22);
   fd('fi',s.ipRisk.toFixed(2),s.ipRisk>0.5,s.ipRisk<=0.2);
@@ -1229,110 +1208,166 @@ async function runAnalysis(){
   fd('fp',s.pin,s.pin>=3,s.pin===1);
   fd('fv',s.vel,s.vel>=5,s.vel<=2);
   fd('fk',s.kyc,s.kyc===2,s.kyc===1);
-  updateLocationFeature(s.locMismatch, s.locMismatch?'Mismatch':s.city||userCity, s.locMismatch);
-
-  await wait(500);
-  setDot(3,'green','7ms');
-  setDot(4,'spin2');
-  await wait(650);
-
-  // ── REAL or MOCK prediction ──
-  let prob, dec, reasons, respTime, isLive=false;
-  const THRESHOLD=0.35;
+  updateLocationFeature(s.locMismatch,s.locMismatch?'Mismatch':s.city||userCity,s.locMismatch);
 
   if(USE_REAL_API && backendConnected){
-    try {
+    try{
       const t0=Date.now();
       const result=await callMLBackend(s);
-      respTime=result.response_ms ? result.response_ms.toFixed(1)+'ms' : (Date.now()-t0)+'ms';
       prob=result.fraud_probability;
       dec=result.decision;
       reasons=result.reasons||[];
-      isLive=true;
-    } catch(err) {
-      console.warn('Backend call failed, falling back to mock:', err.message);
+      respTime=(Date.now()-t0)+'ms';
+    }catch(err){
       backendConnected=false;
-      document.getElementById('backendBadge').className='backend-badge offline';
-      document.getElementById('backendStatus').textContent='Backend: Disconnected (mock fallback)';
       switchToMockMode();
       prob=mockScore(s);
       dec=prob>=0.60?'BLOCK':prob>=THRESHOLD?'REVIEW':'ALLOW';
-      reasons=buildMockReasons(s,h);
-      respTime=(Math.floor(Math.random()*6)+6)+'ms';
+      reasons=buildReasons(s,h);
     }
   } else {
     prob=mockScore(s);
     dec=prob>=0.60?'BLOCK':prob>=THRESHOLD?'REVIEW':'ALLOW';
-    reasons=buildMockReasons(s,h);
-    respTime=(Math.floor(Math.random()*6)+6)+'ms';
+    reasons=buildReasons(s,h);
   }
 
-  setDot(4,'green','8ms');
-  setDot(5,'spin2');
-  await wait(400);
-  setDot(5,'green',isLive?'↗ API':'120ms');
-  setDot(6,dec==='ALLOW'?'green':'red', dec==='BLOCK'?'blocked':'notified');
+  // Update ML card
+  pf.style.width='100%';
+  await sleep(300);
+  showMLCard(prob,dec,reasons,respTime,THRESHOLD);
 
-  // Show ML card
+  // Update stats
+  sessionStats.total++; sessionStats.scores.push(prob);
+  if(dec==='BLOCK') sessionStats.blocked++;
+  else if(dec==='REVIEW') sessionStats.review++;
+  else sessionStats.cleared++;
+  updateStats();
+
+  // Step 3: Decision
+  const amt=parseInt(document.getElementById('amtA').value);
+
+  if(dec==='ALLOW'){
+    // Safe — go directly to success
+    document.getElementById('resAmt').textContent='₹'+amt.toLocaleString('en-IN');
+    document.getElementById('resTo').textContent='sent to '+s.name;
+    document.getElementById('resRef').textContent='REF: UPI'+Date.now().toString().slice(-8);
+    show('s4ok');
+  } else {
+    // Fraud detected — show warning popup, let user decide
+    showWarningPopup(prob, reasons);
+  }
+
+  busy=false;
+}
+
+// ══ WARNING POPUP ══
+function showWarningPopup(prob, reasons){
+  document.getElementById('warnScore').textContent=Math.round(prob*100)+'%';
+  const icons={'new device':'📱','sim':'🔄','pin':'🔑','odd hour':'🌙','velocity':'⚡','kyc':'📋','location':'📍','ip':'🌐'};
+  const wr=document.getElementById('warnReasons');
+  wr.innerHTML=reasons.slice(0,3).map(r=>{
+    const ico=Object.entries(icons).find(([k])=>r.toLowerCase().includes(k))?.[1]||'⚠';
+    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;font-size:11px;color:var(--text2)"><span style="font-size:14px">'+ico+'</span>'+r+'</div>';
+  }).join('');
+  show('s4warn');
+}
+
+function userAllowedAnyway(){
+  const s=SC[cur];
+  const amt=parseInt(document.getElementById('amtA').value);
+  document.getElementById('resAmt').textContent='₹'+amt.toLocaleString('en-IN');
+  document.getElementById('resTo').textContent='sent to '+s.name;
+  document.getElementById('resRef').textContent='REF: UPI'+Date.now().toString().slice(-8);
+  show('s4ok');
+}
+
+function userCancelledTransaction(){
+  const now=new Date();
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('cancelDate').textContent=months[now.getMonth()]+' '+now.getDate()+', '+now.getFullYear();
+  document.getElementById('cancelRef').textContent='#AP-'+Math.floor(Math.random()*90000+10000);
+  show('s4no');
+}
+
+// ══ HELPERS ══
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+function buildReasons(s,h){
+  const r=[];
+  if(s.ipRisk>0.5) r.push('High IP risk score ('+s.ipRisk.toFixed(2)+')');
+  if(s.sim===1) r.push('SIM card recently changed');
+  if(s.pin>=3) r.push('Multiple PIN attempts ('+s.pin+')');
+  if(s.dev===1) r.push('New device detected');
+  if(h<6||h>22) r.push('Odd hour transaction ('+h+':00)');
+  if(s.vel>=5) r.push('High velocity: '+s.vel+' txns/hr');
+  if(s.kyc===2) r.push('KYC rejected');
+  if(s.locMismatch===1) r.push('Location mismatch detected');
+  return r;
+}
+
+function fd(id,val,bad,good){
+  const el=document.getElementById(id);
+  el.textContent=val; el.className='fval'+(bad?' bad':good?' good':'');
+  el.closest('.fcell').classList.toggle('flagged',!!bad);
+}
+
+function setDot(i,st,t){
+  const its=document.querySelectorAll('#flowList .flow-item');
+  if(!its[i]) return;
+  its[i].querySelector('.fdot').className='fdot '+st;
+  if(t!=null) its[i].querySelector('.ftime').textContent=t;
+}
+
+function resetFlow(){
+  document.querySelectorAll('#flowList .fdot').forEach(d=>d.className='fdot gray');
+  document.querySelectorAll('#flowList .ftime').forEach(t=>t.textContent='—');
+}
+
+function resetFeats(){
+  ['fh','fo','fi','fs','fd','fp','fv','fk'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.textContent='—'; el.className='fval';
+    el.closest('.fcell').classList.remove('flagged');
+  });
+}
+
+function updateFlowDots(s,h){
+  setDot(0,'green','0ms');
+  setDot(1,'green','42ms');
+  setDot(2,'green','42ms');
+  setDot(3,'green','7ms');
+  setDot(4,'green','8ms');
+  setDot(5,'green','120ms');
+  const isFraud=mockScore(s)>=0.35;
+  setDot(6,isFraud?'red':'green',isFraud?'warning':'notified');
+}
+
+function showMLCard(prob,dec,reasons,respTime,THRESHOLD){
   const mc=document.getElementById('mlCard');
   mc.style.display='block'; mc.classList.add('slide-in');
-
-  // Update source tag
-  const srcTag=document.getElementById('mlSourceTag');
-  srcTag.textContent=isLive?'LIVE API':'MOCK';
-  srcTag.className='ml-source-tag '+(isLive?'live':'mock');
-
   const pv=document.getElementById('probVal');
   pv.textContent=Math.round(prob*100)+'%';
   pv.className='prob-val '+(prob>=0.60?'hi':prob>=THRESHOLD?'mid':'low');
-
   const db=document.getElementById('dbadge');
   db.textContent=dec; db.className='dbadge '+dec;
-
   const bf=document.getElementById('barFill');
   bf.style.width='0%';
   setTimeout(()=>{
     bf.style.width=Math.round(prob*100)+'%';
     bf.className='bar-fill '+(prob>=0.60?'hi':prob>=THRESHOLD?'mid':'low');
   },80);
-
   document.getElementById('respT').textContent=respTime;
-  if(isLive) document.getElementById('modelName').textContent='FastAPI HistGB';
-
   const rl=document.getElementById('rlist'); rl.innerHTML='';
   if(!reasons.length){
     rl.innerHTML='<div class="ri ok"><div class="rdot"></div>No risk factors detected · Transaction safe</div>';
   } else {
     reasons.slice(0,5).forEach(r=>{
-      const cl=['IP risk','SIM','PIN','KYC','velocity','device','Location','mismatch','Unusual'].some(x=>r.toLowerCase().includes(x.toLowerCase()))?'red':'amb';
-      rl.innerHTML+=`<div class="ri ${cl}"><div class="rdot"></div>${r}</div>`;
+      const cl=['ip','sim','pin','kyc','velocity','device','location','mismatch','unusual'].some(x=>r.toLowerCase().includes(x))?'red':'amb';
+      rl.innerHTML+='<div class="ri '+cl+'"><div class="rdot"></div>'+r+'</div>';
     });
   }
-
-  gDecision=dec; gReasons=reasons;
-  sessionStats.total++; sessionStats.scores.push(prob);
-  if(dec==='BLOCK') sessionStats.blocked++;
-  else if(dec==='REVIEW') sessionStats.review++;
-  else sessionStats.cleared++;
-  updateStats();
 }
 
-function buildMockReasons(s,h){
-  const reasons=[];
-  if(s.ipRisk>0.5)        reasons.push('High IP risk score ('+s.ipRisk.toFixed(2)+')');
-  if(s.sim===1)           reasons.push('SIM card recently changed');
-  if(s.pin>=3)            reasons.push('Multiple PIN attempts ('+s.pin+')');
-  if(s.dev===1)           reasons.push('Unrecognized device');
-  if(h<6||h>22)          reasons.push('Unusual transaction hour ('+h+':00)');
-  if(s.vel>=5)            reasons.push('High velocity: '+s.vel+' txns/hr');
-  if(s.kyc===2)           reasons.push('KYC rejected');
-  if(s.locMismatch===1)   reasons.push('Location mismatch detected');
-  return reasons;
-}
-
-// ══════════════════════════════════════
-// SESSION STATS
-// ══════════════════════════════════════
 function updateStats(){
   document.getElementById('stTotal').textContent=sessionStats.total;
   document.getElementById('stBlocked').textContent=sessionStats.blocked;
@@ -1343,9 +1378,7 @@ function updateStats(){
   document.getElementById('stScore').textContent=sessionStats.scores.length>0?Math.round(avg*100)+'%':'—';
 }
 
-// ══════════════════════════════════════
-// LIVE FEED
-// ══════════════════════════════════════
+// ══ LIVE FEED ══
 const CITIES=['Mumbai','Delhi','Bangalore','Hyderabad','Chennai','Kolkata','Pune','Ahmedabad','Jaipur','Surat','Lucknow','Indore','Bhopal','Nagpur','Patna'];
 const TX_TYPES=['P2P','P2M','Bill','Recharge'];
 let feedTotal=0, feedBlocked=0, feedReview=0, feedCleared=0;
@@ -1354,46 +1387,38 @@ function rnd(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
 function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
 function genTxn(fraud=false){
-  const hour=rnd(0,23);
-  const city=pick(CITIES);
-  if(fraud){
-    return {type:pick(TX_TYPES),city,hour,ipRisk:+(Math.random()*0.5+0.49).toFixed(3),sim:Math.random()<0.7?1:0,dev:Math.random()<0.7?1:0,pin:Math.random()<0.7?3:2,vel:rnd(5,12),kyc:Math.random()<0.6?2:1,locMismatch:Math.random()<0.7?1:0,amount:rnd(5000,50000)};
-  }
+  const hour=rnd(0,23), city=pick(CITIES);
+  if(fraud) return {type:pick(TX_TYPES),city,hour,ipRisk:+(Math.random()*0.5+0.49).toFixed(3),sim:Math.random()<0.7?1:0,dev:Math.random()<0.7?1:0,pin:Math.random()<0.7?3:2,vel:rnd(5,12),kyc:Math.random()<0.6?2:1,locMismatch:Math.random()<0.7?1:0,amount:rnd(5000,50000)};
   return {type:pick(TX_TYPES),city,hour,ipRisk:+(Math.random()*0.22).toFixed(3),sim:0,dev:0,pin:1,vel:rnd(0,2),kyc:1,locMismatch:Math.random()<0.05?1:0,amount:rnd(50,2000)};
 }
 
-// Live feed always uses mock scoring (batch speed)
-function scoreFeedTxn(t){
+function scoreFeed(t){
   let v=0;
-  if(t.ipRisk>0.5)       v+=0.28; if(t.sim===1)    v+=0.22;
-  if(t.dev===1)          v+=0.15; if(t.pin>=3)     v+=0.12;
-  if(t.pin===2)          v+=0.05; if(t.vel>=5)     v+=0.14;
-  else if(t.vel>=3)      v+=0.07;
-  if(t.hour<6||t.hour>22) v+=0.10;
-  if(t.kyc===2)          v+=0.15; if(t.amount>10000) v+=0.06;
-  if(t.locMismatch===1)  v+=0.12;
+  if(t.ipRisk>0.5) v+=0.28; if(t.sim===1) v+=0.22; if(t.dev===1) v+=0.15;
+  if(t.pin>=3) v+=0.12; else if(t.pin===2) v+=0.05;
+  if(t.vel>=5) v+=0.14; else if(t.vel>=3) v+=0.07;
+  if(t.hour<6||t.hour>22) v+=0.10; if(t.kyc===2) v+=0.15;
+  if(t.amount>10000) v+=0.06; if(t.locMismatch===1) v+=0.12;
   return Math.min(0.97,Math.round((v+t.ipRisk*0.15)*100)/100);
 }
 
-function addFeedItem(txn, prob, dec, reasons){
+function addFeedItem(txn,prob,dec,reasons){
   const strip=document.getElementById('feedStrip');
   const ph=strip.querySelector('div[style*="text-align:center"]');
   if(ph) ph.remove();
-
-  feedTotal++; if(dec==='BLOCK') feedBlocked++; else if(dec==='REVIEW') feedReview++; else feedCleared++;
+  feedTotal++;
+  if(dec==='BLOCK') feedBlocked++; else if(dec==='REVIEW') feedReview++; else feedCleared++;
   document.getElementById('fsBl').textContent=feedBlocked;
   document.getElementById('fsRv').textContent=feedReview;
   document.getElementById('fsCl').textContent=feedCleared;
   document.getElementById('feedCount').textContent=feedTotal+' txns';
-
   const now=new Date();
   const t=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+':'+now.getSeconds().toString().padStart(2,'0');
   const locStr=txn.locMismatch?'⚠ Mismatch':txn.city;
-  const reasonStr=reasons.slice(0,2).join(' · ')||'—';
   const div=document.createElement('div');
   div.className='feed-item';
-  div.innerHTML=`<span class="fi-badge ${dec}">${dec}</span><div class="fi-info"><div class="fi-row1"><span class="fi-city">${txn.city}</span><span class="fi-type">${txn.type}</span><span class="fi-prob">${Math.round(prob*100)}%</span><span class="fi-loc">${locStr}</span></div><div class="fi-reasons">${reasonStr}</div></div><span class="fi-time">${t}</span>`;
-  strip.insertBefore(div, strip.firstChild);
+  div.innerHTML='<span class="fi-badge '+dec+'">'+dec+'</span><div class="fi-info"><div class="fi-row1"><span class="fi-city">'+txn.city+'</span><span class="fi-type">'+txn.type+'</span><span class="fi-prob">'+Math.round(prob*100)+'%</span><span class="fi-loc">'+locStr+'</span></div><div class="fi-reasons">'+(reasons.slice(0,2).join(' · ')||'—')+'</div></div><span class="fi-time">'+t+'</span>';
+  strip.insertBefore(div,strip.firstChild);
   while(strip.children.length>50) strip.removeChild(strip.lastChild);
   sessionStats.total++; sessionStats.scores.push(prob);
   if(dec==='BLOCK') sessionStats.blocked++; else if(dec==='REVIEW') sessionStats.review++; else sessionStats.cleared++;
@@ -1412,20 +1437,19 @@ function toggleFeed(){
     feedInterval=setInterval(()=>{
       const isFraud=Math.random()<0.12;
       const txn=genTxn(isFraud);
-      const prob=scoreFeedTxn(txn);
-      const THRESHOLD=0.35;
-      const dec=prob>=0.60?'BLOCK':prob>=THRESHOLD?'REVIEW':'ALLOW';
+      const prob=scoreFeed(txn);
+      const dec=prob>=0.60?'BLOCK':prob>=0.35?'REVIEW':'ALLOW';
       const reasons=[];
       if(txn.ipRisk>0.5) reasons.push('High IP risk');
-      if(txn.sim===1)    reasons.push('SIM changed');
-      if(txn.pin>=3)     reasons.push('Multiple PINs');
-      if(txn.dev===1)    reasons.push('New device');
+      if(txn.sim===1) reasons.push('SIM changed');
+      if(txn.pin>=3) reasons.push('Multiple PINs');
+      if(txn.dev===1) reasons.push('New device');
       if(txn.hour<6||txn.hour>22) reasons.push('Odd hour');
-      if(txn.vel>=5)     reasons.push('High velocity');
-      if(txn.kyc===2)    reasons.push('KYC rejected');
+      if(txn.vel>=5) reasons.push('High velocity');
+      if(txn.kyc===2) reasons.push('KYC rejected');
       if(txn.locMismatch===1) reasons.push('Location mismatch');
       addFeedItem(txn,prob,dec,reasons);
-    }, 900);
+    },900);
   }
 }
 
