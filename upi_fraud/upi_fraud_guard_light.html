@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UPI Fraud Guard — AI-Powered Protection</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F0F2F8;
+  --surface:#FFFFFF;
+  --surface2:#F5F7FC;
+  --surface3:#EEF0F8;
+  --border:#DDE0EE;
+  --border2:#C8CCE0;
+  --text:#1A1A2E;
+  --text2:#5A5A78;
+  --text3:#9494B0;
+  --green:#00A86B;
+  --green-dim:#00A86B18;
+  --amber:#D48000;
+  --amber-dim:#D4800018;
+  --red:#D93025;
+  --red-dim:#D9302518;
+  --accent:#5B4FF0;
+  --accent2:#8B4DDD;
+  --accent-dim:#5B4FF012;
+  --glow:#5B4FF030;
+  --radius:16px;
+}
+
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── Subtle grid background ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(91,79,240,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(91,79,240,0.04) 1px,transparent 1px);
+  background-size:60px 60px;
+  z-index:0;pointer-events:none;
+}
+body::after{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(91,79,240,0.07),transparent);
+  z-index:0;pointer-events:none;
+}
+
+/* ── Top navbar ── */
+.navbar{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 28px;
+  background:rgba(240,242,248,0.92);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  box-shadow:0 1px 12px rgba(0,0,0,0.06);
+}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-logo{
+  width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#fff;
+  box-shadow:0 4px 16px var(--glow);
+}
+.nav-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;letter-spacing:-0.01em;color:var(--text)}
+.nav-title span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-right{display:flex;align-items:center;gap:16px}
+.nav-pill{
+  padding:6px 14px;border-radius:20px;border:1px solid var(--border2);
+  font-size:12px;font-weight:500;color:var(--text2);
+  background:var(--surface);
+  display:flex;align-items:center;gap:6px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+}
+.nav-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.location-badge{
+  padding:6px 14px;border-radius:20px;
+  border:1px solid rgba(91,79,240,0.3);
+  font-size:11px;font-family:'Space Mono',monospace;color:var(--accent);
+  background:var(--accent-dim);
+  display:flex;align-items:center;gap:6px;cursor:pointer;
+  transition:all .2s;box-shadow:0 1px 4px rgba(0,0,0,0.05);
+}
+.location-badge:hover{border-color:var(--accent);box-shadow:0 2px 12px var(--glow)}
+
+/* ── Backend status badge ── */
+.backend-badge{
+  padding:5px 12px;border-radius:20px;
+  font-size:11px;font-family:'Space Mono',monospace;
+  display:flex;align-items:center;gap:6px;cursor:pointer;
+  transition:all .2s;border:1px solid var(--border2);
+  background:var(--surface);color:var(--text3);
+}
+.backend-badge.connected{border-color:rgba(0,168,107,0.4);background:rgba(0,168,107,0.08);color:var(--green)}
+.backend-badge.connecting{border-color:rgba(212,128,0,0.4);background:rgba(212,128,0,0.08);color:var(--amber)}
+.backend-badge.offline{border-color:rgba(217,48,37,0.3);background:rgba(217,48,37,0.06);color:var(--red)}
+.backend-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+/* ── Location banner ── */
+.loc-banner{
+  position:relative;z-index:10;
+  margin:16px 28px 0;
+  padding:12px 18px;border-radius:12px;
+  background:linear-gradient(90deg,rgba(91,79,240,0.07),rgba(139,77,221,0.05));
+  border:1px solid rgba(91,79,240,0.2);
+  display:flex;align-items:center;justify-content:space-between;
+  animation:slideDown .4s ease;gap:12px;
+}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.loc-banner-left{display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap;gap:8px}
+.loc-text{font-size:13px;color:var(--text);font-weight:500}
+.loc-coords{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent)}
+.loc-risk{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700}
+.loc-risk.low{background:var(--green-dim);color:var(--green)}
+.loc-risk.med{background:var(--amber-dim);color:var(--amber)}
+.loc-risk.high{background:var(--red-dim);color:var(--red)}
+
+/* ── API URL Config Banner ── */
+.api-config-bar{
+  position:relative;z-index:10;
+  margin:10px 28px 0;
+  padding:10px 16px;border-radius:10px;
+  background:linear-gradient(90deg,rgba(212,128,0,0.07),rgba(212,128,0,0.04));
+  border:1px solid rgba(212,128,0,0.25);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  font-size:12px;
+}
+.api-config-bar label{color:var(--text2);font-weight:500;font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.api-url-input{
+  flex:1;min-width:200px;padding:5px 10px;border-radius:7px;
+  border:1px solid var(--border2);background:var(--surface);
+  font-family:'Space Mono',monospace;font-size:11px;color:var(--text);
+  outline:none;transition:border-color .2s;
+}
+.api-url-input:focus{border-color:var(--accent)}
+.api-test-btn{
+  padding:6px 14px;border-radius:7px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;border:none;font-size:11px;font-weight:600;cursor:pointer;
+  font-family:'Space Mono',monospace;transition:all .2s;
+  box-shadow:0 2px 8px var(--glow);white-space:nowrap;
+}
+.api-test-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px var(--glow)}
+.api-mode-toggle{
+  padding:5px 12px;border-radius:7px;border:1px solid var(--border2);
+  background:var(--surface2);font-size:11px;font-weight:600;cursor:pointer;
+  font-family:'Space Mono',monospace;color:var(--text2);transition:all .2s;
+  white-space:nowrap;
+}
+.api-mode-toggle.mock{border-color:rgba(212,128,0,0.4);color:var(--amber);background:rgba(212,128,0,0.07)}
+.api-mode-toggle.live{border-color:rgba(0,168,107,0.4);color:var(--green);background:rgba(0,168,107,0.07)}
+
+/* ── Main layout ── */
+.main{
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:340px 1fr;gap:24px;
+  padding:24px 28px 40px;max-width:1400px;margin:0 auto;
+}
+@media(max-width:960px){.main{grid-template-columns:1fr;padding:16px}}
+
+/* ── Left col ── */
+.left-col{display:flex;flex-direction:column;gap:16px}
+.scenario-bar{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:12px;display:flex;gap:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);
+}
+.s-btn{
+  flex:1;padding:8px 10px;border-radius:10px;
+  border:1px solid var(--border2);background:transparent;
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:500;
+  color:var(--text2);cursor:pointer;transition:all .2s;text-align:center;
+}
+.s-btn:hover{border-color:var(--accent);color:var(--text)}
+.s-btn.active{
+  background:linear-gradient(135deg,rgba(91,79,240,0.12),rgba(139,77,221,0.08));
+  border-color:var(--accent);color:var(--text);
+  box-shadow:0 2px 12px var(--glow);
+}
+.s-btn .s-icon{font-size:16px;display:block;margin-bottom:3px}
+.s-btn .s-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+
+/* ── Phone shell ── */
+.phone-wrap{display:flex;justify-content:center}
+.phone{
+  width:300px;
+  background:linear-gradient(160deg,#E8EAF4,#F5F6FF);
+  border-radius:48px;padding:14px;
+  box-shadow:
+    0 30px 60px rgba(0,0,0,0.12),
+    0 0 0 1px rgba(91,79,240,0.1),
+    0 0 30px rgba(91,79,240,0.05),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  position:relative;
+}
+.phone::before{
+  content:'';position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  width:80px;height:6px;background:rgba(0,0,0,0.1);border-radius:3px;
+}
+.phone-screen{
+  background:#FAFBFF;border-radius:36px;overflow:hidden;
+  min-height:520px;position:relative;
+  box-shadow:inset 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* phone status bar */
+.pstatus{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 18px 4px;font-size:11px;font-weight:600;
+  color:var(--text);background:#FAFBFF;
+  position:absolute;top:0;left:0;right:0;z-index:20;
+}
+.ptime{font-size:13px;font-weight:700;font-family:'Space Mono',monospace;color:var(--text)}
+
+/* screen views */
+.pview{position:absolute;inset:0;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .35s;background:#FAFBFF}
+.pview.gone-r{transform:translateX(100%);opacity:0;pointer-events:none}
+.pview.gone-l{transform:translateX(-100%);opacity:0;pointer-events:none}
+.pview.here{transform:translateX(0);opacity:1;pointer-events:all}
+
+/* gpay header */
+.gpay-hdr{
+  padding:14px 18px;display:flex;align-items:center;gap:10px;
+  margin-top:34px;
+  background:linear-gradient(90deg,rgba(91,79,240,0.08),rgba(139,77,221,0.05));
+  border-bottom:1px solid var(--border);
+}
+.g-ico{
+  width:28px;height:28px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#fff;flex-shrink:0;
+}
+.gpay-hdr .gh-title{color:var(--text);font-weight:600;font-size:14px}
+
+/* payment form */
+.pbody{padding:16px 16px 16px}
+.av-sec{text-align:center;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.av{
+  width:50px;height:50px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700;font-size:20px;
+  margin:0 auto 8px;box-shadow:0 4px 16px var(--glow);font-family:'Syne',sans-serif;
+}
+.av-name{font-size:14px;font-weight:600;color:var(--text);font-family:'Syne',sans-serif}
+.av-vpa{font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;margin-top:2px}
+.amt-box{
+  background:rgba(91,79,240,0.05);border:1px solid rgba(91,79,240,0.15);
+  border-radius:12px;padding:12px 14px;text-align:center;margin-bottom:12px;
+}
+.amt-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.amt-inp{
+  font-size:26px;font-weight:700;color:var(--text);
+  border:none;background:transparent;text-align:center;width:100%;outline:none;
+  font-family:'Syne',sans-serif;
+}
+.amt-inp::placeholder{color:var(--text3)}
+.flbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;display:block}
+.fsel,.finp{
+  width:100%;border:1px solid var(--border2);border-radius:9px;
+  padding:8px 10px;font-size:12px;font-family:'Inter',sans-serif;
+  color:var(--text);background:var(--surface);outline:none;
+  -webkit-appearance:none;margin-bottom:9px;transition:border-color .2s;
+}
+.fsel:focus,.finp:focus{border-color:var(--accent)}
+.fsel option{background:var(--surface)}
+.pay-btn{
+  width:100%;margin-top:4px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;border:none;border-radius:10px;padding:12px;
+  font-size:14px;font-weight:600;font-family:'Syne',sans-serif;
+  cursor:pointer;transition:all .2s;box-shadow:0 4px 16px var(--glow);
+}
+.pay-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px var(--glow)}
+.pay-btn:active{transform:translateY(0)}
+
+/* pin screen */
+.pin-body{flex:1;padding:18px 16px;display:flex;flex-direction:column;align-items:center}
+.pin-lock{font-size:28px;margin-bottom:5px}
+.pin-ttl{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px;font-family:'Syne',sans-serif}
+.pin-sub{font-size:10px;color:var(--text3);margin-bottom:14px;text-align:center}
+.pin-pill{
+  background:rgba(91,79,240,0.08);border:1px solid rgba(91,79,240,0.2);
+  border-radius:20px;padding:5px 16px;font-size:11px;font-weight:600;
+  color:var(--accent);margin-bottom:16px;font-family:'Space Mono',monospace;
+}
+.pin-dots{display:flex;gap:10px;margin-bottom:18px}
+.pdot{
+  width:13px;height:13px;border-radius:50%;
+  border:2px solid var(--border2);transition:all .15s;background:transparent;
+}
+.pdot.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 8px var(--glow)}
+.pdot.err{border-color:var(--red);background:var(--red);animation:shake .35s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:210px}
+.nbtn{
+  width:50px;height:50px;border-radius:50%;border:1px solid var(--border2);
+  background:var(--surface);font-size:17px;font-weight:600;
+  font-family:'Syne',sans-serif;cursor:pointer;margin:0 auto;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .12s;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.06);
+}
+.nbtn:hover{border-color:var(--accent);background:rgba(91,79,240,0.06);box-shadow:0 2px 10px var(--glow)}
+.nbtn:active{transform:scale(.93)}
+.nbtn.del{font-size:12px;background:transparent;border-color:transparent;color:var(--text3)}
+.nbtn.ghost{background:transparent;border-color:transparent;pointer-events:none}
+.back-lnk{margin-top:12px;background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;font-family:'Inter',sans-serif}
+
+/* processing screen */
+.proc-screen{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:30px 20px;height:100%;
+  background:#FAFBFF;
+}
+.spin{
+  width:50px;height:50px;border:3px solid var(--border2);
+  border-top:3px solid var(--accent);
+  border-radius:50%;animation:rot .8s linear infinite;margin-bottom:18px;
+  box-shadow:0 0 16px var(--glow);
+}
+@keyframes rot{to{transform:rotate(360deg)}}
+.proc-ttl{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;font-family:'Syne',sans-serif}
+.proc-step{font-size:11px;color:var(--text3);min-height:18px;text-align:center;transition:opacity .2s;font-family:'Space Mono',monospace}
+.proc-chain{display:flex;align-items:center;gap:6px;margin-top:14px;font-size:10px;color:var(--text3);font-family:'Space Mono',monospace}
+.dots3{display:flex;gap:3px}
+.dots3 span{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:db .8s infinite}
+.dots3 span:nth-child(2){animation-delay:.15s}
+.dots3 span:nth-child(3){animation-delay:.3s}
+@keyframes db{0%,100%{opacity:.2;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+.prog-track{width:100%;height:4px;background:var(--border);border-radius:50px;margin-top:16px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:50px;width:0%;transition:width .5s ease}
+
+/* result screens */
+.res-screen{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:22px 18px;text-align:center;height:100%;
+}
+.res-ico{
+  width:60px;height:60px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:24px;margin-bottom:12px;
+  animation:pop .5s cubic-bezier(.4,0,.2,1);
+}
+@keyframes pop{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.res-ico.ok{background:var(--green-dim);color:var(--green);box-shadow:0 0 20px rgba(0,168,107,0.2)}
+.res-ico.no{background:var(--red-dim);color:var(--red);box-shadow:0 0 20px rgba(217,48,37,0.2)}
+.res-ttl{font-size:17px;font-weight:700;margin-bottom:5px;font-family:'Syne',sans-serif}
+.res-ttl.ok{color:var(--green)}
+.res-ttl.no{color:var(--red)}
+.res-sub{font-size:10px;color:var(--text3);margin-bottom:12px;line-height:1.7}
+.res-amt{font-size:22px;font-weight:700;color:var(--text);font-family:'Syne',sans-serif}
+.res-to{font-size:10px;color:var(--text3);margin-bottom:12px}
+.res-ref{
+  font-family:'Space Mono',monospace;font-size:10px;color:var(--text3);
+  background:var(--surface2);border:1px solid var(--border);
+  padding:5px 12px;border-radius:16px;margin-bottom:16px;
+}
+.res-reasons{text-align:left;width:100%;margin-bottom:12px;display:flex;flex-direction:column;gap:4px}
+.res-reason{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 10px;background:var(--red-dim);
+  border:1px solid rgba(217,48,37,0.2);
+  border-radius:8px;font-size:10px;color:var(--red);
+}
+.res-btn{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;border:none;border-radius:10px;padding:10px 22px;
+  font-size:12px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;
+  box-shadow:0 4px 14px var(--glow);transition:all .2s;
+}
+.res-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px var(--glow)}
+
+/* ── Right column ── */
+.right-col{display:flex;flex-direction:column;gap:16px}
+
+/* cards */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;transition:border-color .3s;
+  box-shadow:0 2px 10px rgba(0,0,0,0.04);
+}
+.card:hover{border-color:var(--border2);box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.card-hdr{
+  padding:14px 18px 12px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(90deg,rgba(91,79,240,0.02),transparent);
+}
+.card-title{
+  font-family:'Syne',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--text2);
+  display:flex;align-items:center;gap:7px;
+}
+.card-title .ct-dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.card-badge{
+  font-family:'Space Mono',monospace;font-size:10px;
+  padding:3px 9px;border-radius:10px;
+  background:var(--accent-dim);color:var(--accent);
+  border:1px solid rgba(91,79,240,0.2);
+}
+
+/* live feed */
+.feed-strip{
+  padding:10px 16px;max-height:220px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:6px;
+}
+.feed-strip::-webkit-scrollbar{width:3px}
+.feed-strip::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.feed-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;border-radius:10px;
+  background:var(--surface2);border:1px solid var(--border);
+  animation:feedIn .3s ease;font-size:12px;transition:border-color .2s;
+}
+@keyframes feedIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.feed-item:hover{border-color:var(--border2)}
+.fi-badge{
+  padding:3px 9px;border-radius:6px;font-size:10px;font-weight:700;
+  font-family:'Space Mono',monospace;flex-shrink:0;
+}
+.fi-badge.ALLOW{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,168,107,0.2)}
+.fi-badge.REVIEW{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(212,128,0,0.2)}
+.fi-badge.BLOCK{background:var(--red-dim);color:var(--red);border:1px solid rgba(217,48,37,0.2)}
+.fi-info{flex:1;display:flex;flex-direction:column;gap:1px}
+.fi-row1{display:flex;align-items:center;gap:8px}
+.fi-city{font-weight:500;color:var(--text)}
+.fi-type{font-size:10px;color:var(--text3);font-family:'Space Mono',monospace}
+.fi-prob{font-size:10px;font-family:'Space Mono',monospace;color:var(--text3)}
+.fi-reasons{font-size:10px;color:var(--text3);margin-top:1px}
+.fi-time{font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;flex-shrink:0}
+.fi-loc{font-size:9px;color:var(--accent);font-family:'Space Mono',monospace;background:var(--accent-dim);padding:2px 6px;border-radius:4px}
+
+/* feed controls */
+.feed-ctrl{
+  padding:10px 16px;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.ctrl-btn{
+  padding:7px 16px;border-radius:8px;border:1px solid var(--border2);
+  background:var(--surface2);font-size:12px;font-weight:500;
+  font-family:'Inter',sans-serif;color:var(--text2);cursor:pointer;transition:all .2s;
+}
+.ctrl-btn:hover{border-color:var(--accent);color:var(--text)}
+.ctrl-btn.running{background:rgba(217,48,37,0.06);border-color:var(--red);color:var(--red)}
+.feed-stats{margin-left:auto;display:flex;gap:14px;font-size:11px;font-family:'Space Mono',monospace;color:var(--text3)}
+.feed-stat-val{color:var(--text);font-weight:700}
+
+/* feature grid */
+.feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 16px}
+.fcell{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;padding:10px 11px;transition:border-color .25s;
+}
+.fcell.flagged{border-color:rgba(217,48,37,0.35);background:rgba(217,48,37,0.04)}
+.fkey{font-family:'Space Mono',monospace;font-size:9px;color:var(--text3);margin-bottom:4px;line-height:1.3}
+.fval{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--text);transition:color .25s}
+.fval.bad{color:var(--red)}
+.fval.good{color:var(--green)}
+
+/* flow list */
+.flow-list{padding:10px 16px;display:flex;flex-direction:column}
+.flow-item{display:flex;align-items:center;gap:12px;padding:8px 0;position:relative}
+.flow-item:not(:last-child)::after{
+  content:'';position:absolute;left:6px;top:24px;
+  width:1px;height:calc(100% - 4px);
+  background:linear-gradient(var(--border2),transparent);
+}
+.fdot{
+  width:13px;height:13px;border-radius:50%;flex-shrink:0;z-index:1;
+  transition:all .25s;border:2px solid var(--border2);background:var(--surface2);
+}
+.fdot.gray{background:var(--surface2);border-color:var(--border2)}
+.fdot.green{background:var(--green);border-color:var(--green);box-shadow:0 0 8px rgba(0,168,107,0.4)}
+.fdot.red{background:var(--red);border-color:var(--red);box-shadow:0 0 8px rgba(217,48,37,0.4)}
+.fdot.spin2{background:var(--accent);border-color:var(--accent);animation:pulse2 1s infinite}
+@keyframes pulse2{0%,100%{box-shadow:0 0 0 0 var(--glow)}50%{box-shadow:0 0 0 5px transparent}}
+.flbl2{flex:1;font-size:12px;color:var(--text2)}
+.ftime{font-family:'Space Mono',monospace;font-size:10px;color:var(--text3)}
+
+/* ML Output */
+.ml-out{padding:14px 16px 16px}
+.ml-toprow{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.prob-lbl{font-size:10px;color:var(--text2);margin-bottom:3px;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+.prob-val{font-size:42px;font-weight:800;letter-spacing:-.04em;line-height:1;font-family:'Syne',sans-serif}
+.prob-val.low{color:var(--green)}
+.prob-val.mid{color:var(--amber)}
+.prob-val.hi{color:var(--red)}
+.dec-wrap{text-align:right}
+.dec-lbl{font-size:10px;color:var(--text2);margin-bottom:6px;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+.dbadge{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;font-family:'Space Mono',monospace}
+.dbadge.ALLOW{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,168,107,0.25)}
+.dbadge.REVIEW{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(212,128,0,0.25)}
+.dbadge.BLOCK{background:var(--red-dim);color:var(--red);border:1px solid rgba(217,48,37,0.25)}
+.bar-track{width:100%;height:6px;background:var(--border);border-radius:50px;overflow:hidden;margin-bottom:6px}
+.bar-fill{height:100%;border-radius:50px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.bar-fill.low{background:linear-gradient(90deg,var(--green),#009060)}
+.bar-fill.mid{background:linear-gradient(90deg,var(--amber),#B06800)}
+.bar-fill.hi{background:linear-gradient(90deg,var(--red),#AA1010)}
+.bar-axis{display:flex;justify-content:space-between;font-size:9px;color:var(--text3);font-family:'Space Mono',monospace}
+.resp-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;margin-bottom:14px}
+.resp-t{font-size:11px;color:var(--text3);font-family:'Space Mono',monospace}
+.resp-t span{color:var(--green)}
+.model-tag{font-size:10px;color:var(--text3);font-family:'Space Mono',monospace}
+.model-tag span{color:var(--accent)}
+.rlist{display:flex;flex-direction:column;gap:5px}
+.ri{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;font-size:11px}
+.ri.red{background:var(--red-dim);color:var(--red);border:1px solid rgba(217,48,37,0.15)}
+.ri.amb{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(212,128,0,0.15)}
+.ri.ok{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,168,107,0.15)}
+.rdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;background:currentColor}
+
+/* ML source tag */
+.ml-source-tag{
+  font-family:'Space Mono',monospace;font-size:9px;
+  padding:2px 8px;border-radius:5px;margin-left:8px;
+  display:inline-block;vertical-align:middle;
+}
+.ml-source-tag.live{background:rgba(0,168,107,0.1);color:var(--green);border:1px solid rgba(0,168,107,0.2)}
+.ml-source-tag.mock{background:rgba(212,128,0,0.1);color:var(--amber);border:1px solid rgba(212,128,0,0.2)}
+
+/* Stats bar */
+.stats-bar{
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+  padding:0 28px 20px;max-width:1400px;margin:0 auto;
+}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:14px 16px;
+  display:flex;flex-direction:column;gap:4px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);
+}
+.stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-family:'Space Mono',monospace}
+.stat-val{font-size:26px;font-weight:800;font-family:'Syne',sans-serif;color:var(--text)}
+.stat-val.green{color:var(--green)}
+.stat-val.red{color:var(--red)}
+.stat-val.amber{color:var(--amber)}
+.stat-sub{font-size:10px;color:var(--text3);font-family:'Space Mono',monospace}
+
+/* location feature */
+.loc-feature{
+  grid-column:1/-1;
+  background:linear-gradient(90deg,rgba(91,79,240,0.05),rgba(139,77,221,0.03));
+  border:1px solid rgba(91,79,240,0.18);
+  border-radius:10px;padding:10px 12px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+}
+.lf-left{display:flex;align-items:center;gap:8px}
+.lf-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.lf-val{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--accent)}
+.lf-mismatch{display:flex;align-items:center;gap:5px;font-size:10px;font-family:'Space Mono',monospace}
+
+/* slide-in */
+.slide-in{animation:sli .4s cubic-bezier(.4,0,.2,1) both}
+@keyframes sli{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Footer */
+.footer{
+  position:relative;z-index:1;
+  text-align:center;padding:20px 28px 32px;
+  color:var(--text3);font-size:11px;font-family:'Space Mono',monospace;
+  border-top:1px solid var(--border);margin-top:8px;
+}
+.footer span{color:var(--accent)}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="nav-logo">🛡</div>
+    <div class="nav-title">UPI <span>Fraud Guard</span></div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-pill"><div class="dot"></div>ML Engine Live</div>
+    <div class="backend-badge offline" id="backendBadge" onclick="testBackendConnection()">
+      <div class="backend-dot"></div><span id="backendStatus">Backend: Offline</span>
+    </div>
+    <div class="location-badge" id="navLocBadge" onclick="requestLocation()">📍 Detecting location…</div>
+  </div>
+</nav>
+
+<!-- ══ API CONFIG BAR ══ -->
+<div class="api-config-bar" id="apiConfigBar">
+  <label>🔗 Backend URL</label>
+  <input type="text" class="api-url-input" id="apiUrlInput" value="http://localhost:8000" placeholder="http://localhost:8000"/>
+  <button class="api-test-btn" onclick="testBackendConnection()">⚡ Test Connection</button>
+  <button class="api-mode-toggle mock" id="modeToggle" onclick="toggleMode()">⚠ Mock Mode</button>
+</div>
+
+<!-- ══ LOCATION BANNER ══ -->
+<div class="loc-banner" id="locBanner" style="display:none">
+  <div class="loc-banner-left">
+    <div style="font-size:18px">🌐</div>
+    <div>
+      <div class="loc-text" id="locBannerText">Location detected</div>
+      <div class="loc-coords" id="locBannerCoords">—</div>
+    </div>
+    <div class="loc-risk" id="locBannerRisk">—</div>
+  </div>
+  <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace" id="locMismatch">—</div>
+</div>
+
+<!-- ══ STATS BAR ══ -->
+<div class="stats-bar" id="statsBar">
+  <div class="stat-card">
+    <div class="stat-label">Total Transactions</div>
+    <div class="stat-val" id="stTotal">0</div>
+    <div class="stat-sub">this session</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Blocked</div>
+    <div class="stat-val red" id="stBlocked">0</div>
+    <div class="stat-sub">high-risk stopped</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Fraud Rate</div>
+    <div class="stat-val amber" id="stRate">0%</div>
+    <div class="stat-sub">non-allow decisions</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Avg ML Score</div>
+    <div class="stat-val green" id="stScore">—</div>
+    <div class="stat-sub">fraud probability avg</div>
+  </div>
+</div>
+
+<!-- ══ MAIN GRID ══ -->
+<div class="main">
+
+  <!-- LEFT: Phone -->
+  <div class="left-col">
+
+    <!-- Scenario selector -->
+    <div class="scenario-bar">
+      <button class="s-btn active" onclick="loadScenario('normal')">
+        <span class="s-icon">✅</span><span class="s-label">Normal</span>
+      </button>
+      <button class="s-btn" onclick="loadScenario('fraud')">
+        <span class="s-icon">⚠️</span><span class="s-label">Fraud</span>
+      </button>
+      <button class="s-btn" onclick="loadScenario('sim')">
+        <span class="s-icon">🔄</span><span class="s-label">SIM Swap</span>
+      </button>
+      <button class="s-btn" onclick="loadScenario('custom')">
+        <span class="s-icon">🎛</span><span class="s-label">Custom</span>
+      </button>
+    </div>
+
+    <!-- Phone mockup -->
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-screen" id="phoneScreen">
+
+          <div class="pstatus">
+            <span class="ptime" id="phoneTime">9:41</span>
+            <span style="font-size:10px;color:var(--text2)">●●●● WiFi 🔋</span>
+          </div>
+
+          <!-- S1: Payment form -->
+          <div class="pview here" id="s1">
+            <div class="gpay-hdr">
+              <div class="g-ico">G</div>
+              <span class="gh-title">Google Pay</span>
+            </div>
+            <div class="pbody">
+              <div class="av-sec">
+                <div class="av" id="avIco">P</div>
+                <div class="av-name" id="avName">Priya Singh</div>
+                <div class="av-vpa" id="avVpa">priya@oksbi</div>
+              </div>
+              <div class="amt-box">
+                <div class="amt-lbl">Amount (₹)</div>
+                <div style="display:flex;align-items:center;justify-content:center;gap:3px">
+                  <span style="font-size:20px;font-weight:700;color:var(--text2)">₹</span>
+                  <input class="amt-inp" id="amtA" type="number" value="500" oninput="document.getElementById('amtB').value=this.value"/>
+                </div>
+              </div>
+              <label class="flbl">Transaction type</label>
+              <select class="fsel" id="txType">
+                <option>P2P</option><option>P2M</option><option>Bill</option><option>Recharge</option>
+              </select>
+              <label class="flbl">Amount confirm (₹)</label>
+              <input class="finp" id="amtB" type="number" value="500" oninput="document.getElementById('amtA').value=this.value"/>
+              <button class="pay-btn" onclick="goPin()">Pay Now →</button>
+            </div>
+          </div>
+
+          <!-- S2: PIN -->
+          <div class="pview gone-r" id="s2">
+            <div class="gpay-hdr" style="margin-top:34px">
+              <div class="g-ico">🔐</div>
+              <span class="gh-title">Enter UPI PIN</span>
+            </div>
+            <div class="pin-body">
+              <div class="pin-lock">🔐</div>
+              <div class="pin-ttl">Authenticate Payment</div>
+              <div class="pin-sub">6-digit UPI PIN · Enter any 6 digits</div>
+              <div class="pin-pill" id="pinPill">₹500 → Priya Singh</div>
+              <div class="pin-dots" id="pinDots">
+                <div class="pdot" id="pd0"></div><div class="pdot" id="pd1"></div>
+                <div class="pdot" id="pd2"></div><div class="pdot" id="pd3"></div>
+                <div class="pdot" id="pd4"></div><div class="pdot" id="pd5"></div>
+              </div>
+              <div class="numpad">
+                <button class="nbtn" onclick="pk('1')">1</button>
+                <button class="nbtn" onclick="pk('2')">2</button>
+                <button class="nbtn" onclick="pk('3')">3</button>
+                <button class="nbtn" onclick="pk('4')">4</button>
+                <button class="nbtn" onclick="pk('5')">5</button>
+                <button class="nbtn" onclick="pk('6')">6</button>
+                <button class="nbtn" onclick="pk('7')">7</button>
+                <button class="nbtn" onclick="pk('8')">8</button>
+                <button class="nbtn" onclick="pk('9')">9</button>
+                <button class="nbtn ghost"></button>
+                <button class="nbtn" onclick="pk('0')">0</button>
+                <button class="nbtn del" onclick="pdel()">⌫</button>
+              </div>
+              <button class="back-lnk" onclick="show('s1','l')">← Back</button>
+            </div>
+          </div>
+
+          <!-- S3: Processing -->
+          <div class="pview gone-r" id="s3">
+            <div class="proc-screen">
+              <div class="spin"></div>
+              <div class="proc-ttl">Analyzing Transaction…</div>
+              <div class="proc-step" id="procStep">Verifying PIN…</div>
+              <div class="proc-chain">
+                <span>NPCI</span>
+                <div class="dots3"><span></span><span></span><span></span></div>
+                <span id="mlEngineLabel">ML Engine</span>
+              </div>
+              <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+            </div>
+          </div>
+
+          <!-- S4a: Success -->
+          <div class="pview gone-r" id="s4ok">
+            <div class="res-screen">
+              <div class="res-ico ok">✓</div>
+              <div class="res-ttl ok">Payment Successful!</div>
+              <div class="res-sub">Transaction cleared by ML fraud engine.<br/>No suspicious activity detected.</div>
+              <div class="res-amt" id="resAmt">₹500</div>
+              <div class="res-to" id="resTo">sent to Priya Singh</div>
+              <div class="res-ref" id="resRef">REF: UPI00000000</div>
+              <button class="res-btn" onclick="loadScenario(cur)">New Transaction</button>
+            </div>
+          </div>
+
+          <!-- S4b: Blocked -->
+          <div class="pview gone-r" id="s4no">
+            <div class="res-screen">
+              <div class="res-ico no">✕</div>
+              <div class="res-ttl no">Transaction Blocked!</div>
+              <div class="res-sub">Fraud engine intercepted this<br/>transaction in real-time.</div>
+              <div class="res-reasons" id="resReasons"></div>
+              <button class="res-btn" onclick="loadScenario(cur)">Try Again</button>
+            </div>
+          </div>
+
+        </div><!-- /phone-screen -->
+      </div><!-- /phone -->
+    </div>
+
+  </div><!-- /left-col -->
+
+  <!-- RIGHT: Analysis panels -->
+  <div class="right-col">
+
+    <!-- Live Feed -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-title"><span class="ct-dot" style="background:var(--green);animation:blink 1.5s infinite"></span>Live Transaction Feed</span>
+        <span class="card-badge" id="feedCount">0 txns</span>
+      </div>
+      <div class="feed-strip" id="feedStrip">
+        <div style="text-align:center;padding:30px;color:var(--text3);font-size:12px;font-family:'Space Mono',monospace">
+          Press START to begin live feed simulation
+        </div>
+      </div>
+      <div class="feed-ctrl">
+        <button class="ctrl-btn" id="feedStartBtn" onclick="toggleFeed()">▶ START Feed</button>
+        <button class="ctrl-btn" onclick="clearFeed()">⟳ Clear</button>
+        <div class="feed-stats">
+          <span><span class="feed-stat-val" id="fsBl">0</span> blocked</span>
+          <span><span class="feed-stat-val" id="fsRv">0</span> review</span>
+          <span><span class="feed-stat-val" id="fsCl">0</span> cleared</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Two-column: Flow + Features -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+      <!-- Transaction Flow -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title"><span class="ct-dot"></span>TX Flow</span>
+        </div>
+        <div class="flow-list" id="flowList">
+          <div class="flow-item"><div class="fdot gray"></div><span class="flbl2">User initiates payment</span><span class="ftime">—</span></div>
+          <div class="flow-item"><div class="fdot gray"></div><span class="flbl2">UPI PIN verified</span><span class="ftime">—</span></div>
+          <div class="flow-item"><div class="fdot gray"></div><span class="flbl2">Sent to PSP server</span><span class="ftime">—</span></div>
+          <div class="flow-item"><div class="fdot gray"></div><span class="flbl2">ML features extracted</span><span class="ftime">—</span></div>
+          <div class="flow-item"><div class="fdot gray"></div><span class="flbl2">Fraud model inference</span><span class="ftime">—</span></div>
+          <div class="flow-item"><div class="fdot gray"></div><span class="flbl2">Decision to NPCI</span><span class="ftime">—</span></div>
+          <div class="flow-item"><div class="fdot gray"></div><span class="flbl2">User notified</span><span class="ftime">—</span></div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title"><span class="ct-dot"></span>ML Features</span>
+          <span class="card-badge">HistGB Model</span>
+        </div>
+        <div class="feat-grid" id="featGrid">
+          <div class="fcell"><div class="fkey">hour_of_day</div><div class="fval" id="fh">—</div></div>
+          <div class="fcell"><div class="fkey">is_odd_hour</div><div class="fval" id="fo">—</div></div>
+          <div class="fcell"><div class="fkey">ip_risk_score</div><div class="fval" id="fi">—</div></div>
+          <div class="fcell"><div class="fkey">sim_change</div><div class="fval" id="fs">—</div></div>
+          <div class="fcell"><div class="fkey">new_device</div><div class="fval" id="fd">—</div></div>
+          <div class="fcell"><div class="fkey">pin_attempts</div><div class="fval" id="fp">—</div></div>
+          <div class="fcell"><div class="fkey">txns_last_1hr</div><div class="fval" id="fv">—</div></div>
+          <div class="fcell"><div class="fkey">kyc_status</div><div class="fval" id="fk">—</div></div>
+          <div class="loc-feature" id="locFeature">
+            <div class="lf-left">
+              <span style="font-size:14px">📍</span>
+              <div>
+                <div class="lf-label">location_mismatch</div>
+                <div class="lf-val" id="lfVal">Detecting…</div>
+              </div>
+            </div>
+            <div class="lf-mismatch" id="lfMismatch" style="color:var(--text3)">—</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ML Output -->
+    <div class="card" id="mlCard" style="display:none">
+      <div class="card-hdr">
+        <span class="card-title">
+          <span class="ct-dot" style="background:var(--accent)"></span>
+          ML Model Output
+          <span class="ml-source-tag mock" id="mlSourceTag">MOCK</span>
+        </span>
+        <span class="card-badge">HistGradientBoosting</span>
+      </div>
+      <div class="ml-out">
+        <div class="ml-toprow">
+          <div>
+            <div class="prob-lbl">Fraud Probability</div>
+            <div class="prob-val" id="probVal">—</div>
+          </div>
+          <div class="dec-wrap">
+            <div class="dec-lbl">Decision</div>
+            <div class="dbadge ALLOW" id="dbadge">—</div>
+          </div>
+        </div>
+        <div style="position:relative;margin-bottom:4px">
+          <div class="bar-track"><div class="bar-fill low" id="barFill" style="width:0%"></div></div>
+          <div style="position:relative;height:16px">
+            <div style="position:absolute;left:35%;top:-12px;width:1px;background:var(--text3);height:16px;opacity:0.5"></div>
+            <div style="position:absolute;left:35%;top:-20px;transform:translateX(-50%);font-size:9px;color:var(--text3);white-space:nowrap;font-family:'Space Mono',monospace">THRESHOLD</div>
+            <div style="position:absolute;left:60%;top:-12px;width:1px;background:var(--text3);height:16px;opacity:0.5"></div>
+            <div style="position:absolute;left:60%;top:-20px;transform:translateX(-50%);font-size:9px;color:var(--text3);white-space:nowrap;font-family:'Space Mono',monospace">BLOCK</div>
+          </div>
+        </div>
+        <div class="bar-axis"><span>0%</span><span>50%</span><span>100%</span></div>
+        <div class="resp-row">
+          <div class="resp-t">Response: <span id="respT">—</span></div>
+          <div class="model-tag">Model: <span id="modelName">HistGradientBoosting</span></div>
+        </div>
+        <div class="rlist" id="rlist"></div>
+      </div>
+    </div>
+
+  </div><!-- /right-col -->
+</div><!-- /main -->
+
+<footer class="footer">
+  UPI Fraud Guard · Powered by <span>HistGradientBoosting ML Model</span> · Real-time feature extraction · Location-aware fraud detection
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// BACKEND CONFIG — Real ML API Integration
+// ══════════════════════════════════════════════════════════
+let API_BASE = 'http://localhost:8000';
+let USE_REAL_API = false;    // switches to true when backend is reachable
+let backendConnected = false;
+
+async function testBackendConnection() {
+  const badge = document.getElementById('backendBadge');
+  const statusEl = document.getElementById('backendStatus');
+  const urlInput = document.getElementById('apiUrlInput');
+  API_BASE = urlInput.value.trim().replace(/\/$/, '');
+
+  badge.className = 'backend-badge connecting';
+  statusEl.textContent = 'Backend: Connecting…';
+
+  try {
+    const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(4000) });
+    if (res.ok) {
+      const data = await res.json();
+      badge.className = 'backend-badge connected';
+      statusEl.textContent = `Backend: Connected (threshold: ${data.threshold})`;
+      backendConnected = true;
+      if (!USE_REAL_API) switchToLiveMode();
+      return true;
+    }
+  } catch(e) {}
+
+  badge.className = 'backend-badge offline';
+  statusEl.textContent = 'Backend: Offline (using mock)';
+  backendConnected = false;
+  return false;
+}
+
+function switchToLiveMode() {
+  USE_REAL_API = true;
+  const btn = document.getElementById('modeToggle');
+  btn.className = 'api-mode-toggle live';
+  btn.textContent = '✅ Live ML Mode';
+  document.getElementById('mlEngineLabel').textContent = 'FastAPI ML Engine';
+}
+
+function switchToMockMode() {
+  USE_REAL_API = false;
+  const btn = document.getElementById('modeToggle');
+  btn.className = 'api-mode-toggle mock';
+  btn.textContent = '⚠ Mock Mode';
+  document.getElementById('mlEngineLabel').textContent = 'ML Engine';
+}
+
+function toggleMode() {
+  if (USE_REAL_API) {
+    switchToMockMode();
+  } else {
+    testBackendConnection();
+  }
+}
+
+// Call real backend /predict endpoint
+async function callMLBackend(scenario) {
+  const s = scenario;
+  const h = s.hour;
+  const payload = {
+    transaction_type:  s.txType,
+    transaction_city:  s.city || userCity || 'Delhi',
+    hour_of_day:       h,
+    is_odd_hour:       (h < 6 || h > 22) ? 1 : 0,
+    is_new_device:     s.dev,
+    is_new_payee:      1,
+    location_mismatch: s.locMismatch,
+    txns_last_1hr:     s.vel,
+    pin_attempts:      s.pin,
+    ip_risk_score:     s.ipRisk,
+    sim_change_flag:   s.sim,
+    kyc_status:        s.kyc,
+    merchant_category: s.txType === 'P2P' ? 'peer' : s.txType === 'Bill' ? 'utility' : 'retail'
+  };
+
+  const res = await fetch(`${API_BASE}/predict`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(8000)
+  });
+
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.json();
+}
+
+// Mock scoring (fallback when backend is offline)
+function mockScore(s) {
+  let v = 0;
+  if (s.ipRisk > 0.5)        v += 0.28;
+  if (s.sim === 1)           v += 0.22;
+  if (s.dev === 1)           v += 0.15;
+  if (s.pin >= 3)            v += 0.12;
+  if (s.pin === 2)           v += 0.05;
+  if (s.vel >= 5)            v += 0.14;
+  else if (s.vel >= 3)       v += 0.07;
+  if (s.hour < 6 || s.hour > 22) v += 0.10;
+  if (s.kyc === 2)           v += 0.15;
+  if (s.amount > 10000)      v += 0.06;
+  if (s.locMismatch === 1)   v += 0.12;
+  return Math.min(0.97, Math.round((v + s.ipRisk * 0.15) * 100) / 100);
+}
+
+// ══════════════════════════════════════
+// SCENARIOS
+// ══════════════════════════════════════
+const SC = {
+  normal: { name:'Anjali Mehta',  vpa:'anjali@okaxis',    amount:350,   txType:'P2M', hour:11, ipRisk:0.06, sim:0, dev:0, pin:1, vel:1, kyc:1, city:'Mumbai',    locMismatch:0 },
+  fraud:  { name:'Rohit Sharma',  vpa:'rohit@okhdfcbank', amount:18500, txType:'P2P', hour:23, ipRisk:0.72, sim:1, dev:1, pin:2, vel:6, kyc:1, city:'Unknown',   locMismatch:1 },
+  sim:    { name:'Deepak Verma',  vpa:'deepak@ybl',       amount:49999, txType:'P2P', hour:3,  ipRisk:0.85, sim:1, dev:1, pin:3, vel:9, kyc:2, city:'Bhopal',    locMismatch:1 },
+  custom: { name:'Kavya Iyer',    vpa:'kavya@oksbi',      amount:1200,  txType:'Bill',hour:16, ipRisk:0.15, sim:0, dev:0, pin:1, vel:2, kyc:1, city:'Bangalore', locMismatch:0 }
+};
+
+let cur='normal', pin='', busy=false;
+let gDecision=null, gReasons=null;
+let feedRunning=false, feedInterval=null;
+let sessionStats={total:0,blocked:0,review:0,cleared:0,scores:[]};
+let userLat=null, userLon=null, userCity='Unknown';
+
+// ── Clock ──
+(function tick(){
+  const n=new Date();
+  document.getElementById('phoneTime').textContent=
+    n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
+  setTimeout(tick,10000);
+})();
+
+// ══════════════════════════════════════
+// LOCATION DETECTION
+// ══════════════════════════════════════
+function requestLocation(){
+  if(!navigator.geolocation){ setLocationFallback(); return; }
+  document.getElementById('navLocBadge').textContent='📍 Locating…';
+  navigator.geolocation.getCurrentPosition(
+    pos => onLocationSuccess(pos.coords.latitude, pos.coords.longitude),
+    err => setLocationFallback(),
+    {timeout:8000, maximumAge:60000}
+  );
+}
+
+async function onLocationSuccess(lat, lon){
+  userLat=lat; userLon=lon;
+  const latStr=lat.toFixed(4), lonStr=lon.toFixed(4);
+  let city=null, region=null;
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,{headers:{'Accept-Language':'en'}});
+    const d=await r.json();
+    city=d.address?.city||d.address?.town||d.address?.village||d.address?.county||'Unknown';
+    region=d.address?.state||'';
+    userCity=city;
+  }catch(e){ city='Unknown'; }
+
+  const ipRisk=Math.random()*0.3;
+  const riskClass=ipRisk>0.5?'high':ipRisk>0.25?'med':'low';
+  document.getElementById('navLocBadge').textContent=`📍 ${city}${region?', '+region:''}`;
+  const banner=document.getElementById('locBanner');
+  banner.style.display='flex';
+  document.getElementById('locBannerText').textContent=`📍 Detected: ${city}${region?', '+region:''}`;
+  document.getElementById('locBannerCoords').textContent=`${latStr}°N, ${lonStr}°E`;
+  const riskEl=document.getElementById('locBannerRisk');
+  riskEl.textContent=(ipRisk>0.5?'HIGH':ipRisk>0.25?'MEDIUM':'LOW')+' RISK';
+  riskEl.className='loc-risk '+riskClass;
+  updateLocationFeature(0,city,false);
+  document.getElementById('locMismatch').textContent=`IP risk: ${(ipRisk*100).toFixed(0)}% · Device registered`;
+}
+
+function setLocationFallback(){
+  userCity='Bhopal';
+  document.getElementById('navLocBadge').textContent='📍 Location: Bhopal';
+  document.getElementById('locBanner').style.display='flex';
+  document.getElementById('locBannerText').textContent='📍 Using default: Bhopal, Madhya Pradesh';
+  document.getElementById('locBannerCoords').textContent='23.2599°N, 77.4126°E';
+  document.getElementById('locBannerRisk').textContent='LOW RISK';
+  document.getElementById('locBannerRisk').className='loc-risk low';
+  updateLocationFeature(0,'Bhopal',false);
+  document.getElementById('locMismatch').textContent='Default location · Enable GPS for real detection';
+}
+
+function updateLocationFeature(mismatch, city, isFraud){
+  const lfVal=document.getElementById('lfVal');
+  const lfMismatch=document.getElementById('lfMismatch');
+  const locF=document.getElementById('locFeature');
+  if(mismatch){
+    lfVal.textContent=city||'MISMATCH'; lfVal.style.color='var(--red)';
+    locF.style.borderColor='rgba(217,48,37,0.35)'; locF.style.background='rgba(217,48,37,0.04)';
+    lfMismatch.textContent='⚠ Location mismatch detected'; lfMismatch.style.color='var(--red)';
+  } else {
+    lfVal.textContent=city||userCity||'Verified'; lfVal.style.color='var(--green)';
+    locF.style.borderColor='rgba(91,79,240,0.18)';
+    locF.style.background='linear-gradient(90deg,rgba(91,79,240,0.05),rgba(139,77,221,0.03))';
+    lfMismatch.textContent='✓ Location verified'; lfMismatch.style.color='var(--green)';
+  }
+}
+
+setTimeout(requestLocation, 800);
+setTimeout(testBackendConnection, 1200);
+
+// ══════════════════════════════════════
+// SCREEN SWITCHER
+// ══════════════════════════════════════
+function show(id, from){
+  const all=['s1','s2','s3','s4ok','s4no'];
+  all.forEach(sid=>{
+    const el=document.getElementById(sid);
+    if(sid===id) el.className='pview here';
+    else if(el.classList.contains('here')) el.className='pview gone-l';
+    else el.className='pview gone-r';
+  });
+}
+
+// ══════════════════════════════════════
+// LOAD SCENARIO
+// ══════════════════════════════════════
+function loadScenario(key){
+  cur=key; pin=''; busy=false; gDecision=null; gReasons=null;
+  document.querySelectorAll('.s-btn').forEach((b,i)=>{
+    b.classList.toggle('active',['normal','fraud','sim','custom'][i]===key);
+  });
+  const s=SC[key];
+  document.getElementById('avIco').textContent=s.name[0];
+  document.getElementById('avName').textContent=s.name;
+  document.getElementById('avVpa').textContent=s.vpa;
+  document.getElementById('amtA').value=s.amount;
+  document.getElementById('amtB').value=s.amount;
+  document.getElementById('txType').value=s.txType;
+  document.getElementById('mlCard').style.display='none';
+  updateLocationFeature(s.locMismatch, s.locMismatch?'Mismatch: '+s.city:s.city, s.locMismatch);
+  resetFlow(); resetFeats(); show('s1');
+  for(let i=0;i<6;i++) document.getElementById('pd'+i).className='pdot';
+}
+
+// ══════════════════════════════════════
+// PIN INPUT
+// ══════════════════════════════════════
+function goPin(){
+  const s=SC[cur]; pin='';
+  document.getElementById('pinPill').textContent=
+    '₹'+parseInt(document.getElementById('amtA').value).toLocaleString('en-IN')+' → '+s.name;
+  for(let i=0;i<6;i++) document.getElementById('pd'+i).className='pdot';
+  show('s2');
+}
+function pk(k){
+  if(pin.length>=6||busy) return;
+  pin+=k; updDots();
+  if(pin.length===6) setTimeout(submitPIN,350);
+}
+function pdel(){ if(pin.length){pin=pin.slice(0,-1);updDots();} }
+function updDots(){
+  for(let i=0;i<6;i++)
+    document.getElementById('pd'+i).className='pdot'+(i<pin.length?' on':'');
+}
+
+// ══════════════════════════════════════
+// SUBMIT & PROCESS
+// ══════════════════════════════════════
+async function submitPIN(){
+  busy=true; show('s3');
+  runAnalysis();
+  await runProcScreen();
+}
+
+async function runProcScreen(){
+  const steps=['Verifying PIN…','Connecting to NPCI…','Extracting ML features…','Running fraud model…','Awaiting decision…'];
+  const pf=document.getElementById('progFill');
+  const ps=document.getElementById('procStep');
+  for(let i=0;i<steps.length;i++){
+    ps.style.opacity=0; await wait(80);
+    ps.textContent=steps[i]; ps.style.opacity=1;
+    pf.style.width=((i+1)/steps.length*80)+'%';
+    await wait(i===3?700:400);
+  }
+  while(!gDecision) await wait(80);
+  pf.style.width='100%'; await wait(350);
+
+  const s=SC[cur];
+  const amt=parseInt(document.getElementById('amtA').value);
+  if(gDecision==='ALLOW'){
+    document.getElementById('resAmt').textContent='₹'+amt.toLocaleString('en-IN');
+    document.getElementById('resTo').textContent='sent to '+s.name;
+    document.getElementById('resRef').textContent='REF: UPI'+Date.now().toString().slice(-8);
+    show('s4ok');
+  } else {
+    const rr=document.getElementById('resReasons');
+    rr.innerHTML=(gReasons||[]).slice(0,3).map(r=>`<div class="res-reason"><span>⚠</span>${r}</div>`).join('');
+    show('s4no');
+  }
+  busy=false;
+}
+
+// ══════════════════════════════════════
+// ML ANALYSIS — Real backend or Mock
+// ══════════════════════════════════════
+function fd(id,val,bad,good){
+  const el=document.getElementById(id);
+  el.textContent=val; el.className='fval'+(bad?' bad':good?' good':'');
+  el.closest('.fcell').classList.toggle('flagged',!!bad);
+}
+function setDot(i,st,t){
+  const its=document.querySelectorAll('#flowList .flow-item');
+  its[i].querySelector('.fdot').className='fdot '+st;
+  if(t!=null) its[i].querySelector('.ftime').textContent=t;
+}
+function resetFlow(){ document.querySelectorAll('#flowList .fdot').forEach(d=>d.className='fdot gray'); document.querySelectorAll('#flowList .ftime').forEach(t=>t.textContent='—'); }
+function resetFeats(){ ['fh','fo','fi','fs','fd','fp','fv','fk'].forEach(id=>{ const el=document.getElementById(id); el.textContent='—'; el.className='fval'; el.closest('.fcell').classList.remove('flagged'); }); }
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+async function runAnalysis(){
+  gDecision=null; gReasons=null;
+  const s=SC[cur];
+  resetFlow(); resetFeats();
+  document.getElementById('mlCard').style.display='none';
+
+  setDot(0,'green','0ms');
+  await wait(300);
+  setDot(1,'green','42ms');
+  await wait(350);
+  setDot(2,'spin2');
+  await wait(400);
+  setDot(2,'green','42ms');
+  setDot(3,'spin2');
+
+  const h=s.hour;
+  fd('fh',h,h<6||h>22,!(h<6||h>22));
+  fd('fo',(h<6||h>22)?1:0,h<6||h>22);
+  fd('fi',s.ipRisk.toFixed(2),s.ipRisk>0.5,s.ipRisk<=0.2);
+  fd('fs',s.sim,s.sim===1,s.sim===0);
+  fd('fd',s.dev,s.dev===1,s.dev===0);
+  fd('fp',s.pin,s.pin>=3,s.pin===1);
+  fd('fv',s.vel,s.vel>=5,s.vel<=2);
+  fd('fk',s.kyc,s.kyc===2,s.kyc===1);
+  updateLocationFeature(s.locMismatch, s.locMismatch?'Mismatch':s.city||userCity, s.locMismatch);
+
+  await wait(500);
+  setDot(3,'green','7ms');
+  setDot(4,'spin2');
+  await wait(650);
+
+  // ── REAL or MOCK prediction ──
+  let prob, dec, reasons, respTime, isLive=false;
+  const THRESHOLD=0.35;
+
+  if(USE_REAL_API && backendConnected){
+    try {
+      const t0=Date.now();
+      const result=await callMLBackend(s);
+      respTime=result.response_ms ? result.response_ms.toFixed(1)+'ms' : (Date.now()-t0)+'ms';
+      prob=result.fraud_probability;
+      dec=result.decision;
+      reasons=result.reasons||[];
+      isLive=true;
+    } catch(err) {
+      console.warn('Backend call failed, falling back to mock:', err.message);
+      backendConnected=false;
+      document.getElementById('backendBadge').className='backend-badge offline';
+      document.getElementById('backendStatus').textContent='Backend: Disconnected (mock fallback)';
+      switchToMockMode();
+      prob=mockScore(s);
+      dec=prob>=0.60?'BLOCK':prob>=THRESHOLD?'REVIEW':'ALLOW';
+      reasons=buildMockReasons(s,h);
+      respTime=(Math.floor(Math.random()*6)+6)+'ms';
+    }
+  } else {
+    prob=mockScore(s);
+    dec=prob>=0.60?'BLOCK':prob>=THRESHOLD?'REVIEW':'ALLOW';
+    reasons=buildMockReasons(s,h);
+    respTime=(Math.floor(Math.random()*6)+6)+'ms';
+  }
+
+  setDot(4,'green','8ms');
+  setDot(5,'spin2');
+  await wait(400);
+  setDot(5,'green',isLive?'↗ API':'120ms');
+  setDot(6,dec==='ALLOW'?'green':'red', dec==='BLOCK'?'blocked':'notified');
+
+  // Show ML card
+  const mc=document.getElementById('mlCard');
+  mc.style.display='block'; mc.classList.add('slide-in');
+
+  // Update source tag
+  const srcTag=document.getElementById('mlSourceTag');
+  srcTag.textContent=isLive?'LIVE API':'MOCK';
+  srcTag.className='ml-source-tag '+(isLive?'live':'mock');
+
+  const pv=document.getElementById('probVal');
+  pv.textContent=Math.round(prob*100)+'%';
+  pv.className='prob-val '+(prob>=0.60?'hi':prob>=THRESHOLD?'mid':'low');
+
+  const db=document.getElementById('dbadge');
+  db.textContent=dec; db.className='dbadge '+dec;
+
+  const bf=document.getElementById('barFill');
+  bf.style.width='0%';
+  setTimeout(()=>{
+    bf.style.width=Math.round(prob*100)+'%';
+    bf.className='bar-fill '+(prob>=0.60?'hi':prob>=THRESHOLD?'mid':'low');
+  },80);
+
+  document.getElementById('respT').textContent=respTime;
+  if(isLive) document.getElementById('modelName').textContent='FastAPI HistGB';
+
+  const rl=document.getElementById('rlist'); rl.innerHTML='';
+  if(!reasons.length){
+    rl.innerHTML='<div class="ri ok"><div class="rdot"></div>No risk factors detected · Transaction safe</div>';
+  } else {
+    reasons.slice(0,5).forEach(r=>{
+      const cl=['IP risk','SIM','PIN','KYC','velocity','device','Location','mismatch','Unusual'].some(x=>r.toLowerCase().includes(x.toLowerCase()))?'red':'amb';
+      rl.innerHTML+=`<div class="ri ${cl}"><div class="rdot"></div>${r}</div>`;
+    });
+  }
+
+  gDecision=dec; gReasons=reasons;
+  sessionStats.total++; sessionStats.scores.push(prob);
+  if(dec==='BLOCK') sessionStats.blocked++;
+  else if(dec==='REVIEW') sessionStats.review++;
+  else sessionStats.cleared++;
+  updateStats();
+}
+
+function buildMockReasons(s,h){
+  const reasons=[];
+  if(s.ipRisk>0.5)        reasons.push('High IP risk score ('+s.ipRisk.toFixed(2)+')');
+  if(s.sim===1)           reasons.push('SIM card recently changed');
+  if(s.pin>=3)            reasons.push('Multiple PIN attempts ('+s.pin+')');
+  if(s.dev===1)           reasons.push('Unrecognized device');
+  if(h<6||h>22)          reasons.push('Unusual transaction hour ('+h+':00)');
+  if(s.vel>=5)            reasons.push('High velocity: '+s.vel+' txns/hr');
+  if(s.kyc===2)           reasons.push('KYC rejected');
+  if(s.locMismatch===1)   reasons.push('Location mismatch detected');
+  return reasons;
+}
+
+// ══════════════════════════════════════
+// SESSION STATS
+// ══════════════════════════════════════
+function updateStats(){
+  document.getElementById('stTotal').textContent=sessionStats.total;
+  document.getElementById('stBlocked').textContent=sessionStats.blocked;
+  const nonAllow=sessionStats.blocked+sessionStats.review;
+  const rate=sessionStats.total>0?Math.round(nonAllow/sessionStats.total*100):0;
+  document.getElementById('stRate').textContent=rate+'%';
+  const avg=sessionStats.scores.length>0?sessionStats.scores.reduce((a,b)=>a+b,0)/sessionStats.scores.length:0;
+  document.getElementById('stScore').textContent=sessionStats.scores.length>0?Math.round(avg*100)+'%':'—';
+}
+
+// ══════════════════════════════════════
+// LIVE FEED
+// ══════════════════════════════════════
+const CITIES=['Mumbai','Delhi','Bangalore','Hyderabad','Chennai','Kolkata','Pune','Ahmedabad','Jaipur','Surat','Lucknow','Indore','Bhopal','Nagpur','Patna'];
+const TX_TYPES=['P2P','P2M','Bill','Recharge'];
+let feedTotal=0, feedBlocked=0, feedReview=0, feedCleared=0;
+
+function rnd(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function genTxn(fraud=false){
+  const hour=rnd(0,23);
+  const city=pick(CITIES);
+  if(fraud){
+    return {type:pick(TX_TYPES),city,hour,ipRisk:+(Math.random()*0.5+0.49).toFixed(3),sim:Math.random()<0.7?1:0,dev:Math.random()<0.7?1:0,pin:Math.random()<0.7?3:2,vel:rnd(5,12),kyc:Math.random()<0.6?2:1,locMismatch:Math.random()<0.7?1:0,amount:rnd(5000,50000)};
+  }
+  return {type:pick(TX_TYPES),city,hour,ipRisk:+(Math.random()*0.22).toFixed(3),sim:0,dev:0,pin:1,vel:rnd(0,2),kyc:1,locMismatch:Math.random()<0.05?1:0,amount:rnd(50,2000)};
+}
+
+// Live feed always uses mock scoring (batch speed)
+function scoreFeedTxn(t){
+  let v=0;
+  if(t.ipRisk>0.5)       v+=0.28; if(t.sim===1)    v+=0.22;
+  if(t.dev===1)          v+=0.15; if(t.pin>=3)     v+=0.12;
+  if(t.pin===2)          v+=0.05; if(t.vel>=5)     v+=0.14;
+  else if(t.vel>=3)      v+=0.07;
+  if(t.hour<6||t.hour>22) v+=0.10;
+  if(t.kyc===2)          v+=0.15; if(t.amount>10000) v+=0.06;
+  if(t.locMismatch===1)  v+=0.12;
+  return Math.min(0.97,Math.round((v+t.ipRisk*0.15)*100)/100);
+}
+
+function addFeedItem(txn, prob, dec, reasons){
+  const strip=document.getElementById('feedStrip');
+  const ph=strip.querySelector('div[style*="text-align:center"]');
+  if(ph) ph.remove();
+
+  feedTotal++; if(dec==='BLOCK') feedBlocked++; else if(dec==='REVIEW') feedReview++; else feedCleared++;
+  document.getElementById('fsBl').textContent=feedBlocked;
+  document.getElementById('fsRv').textContent=feedReview;
+  document.getElementById('fsCl').textContent=feedCleared;
+  document.getElementById('feedCount').textContent=feedTotal+' txns';
+
+  const now=new Date();
+  const t=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+':'+now.getSeconds().toString().padStart(2,'0');
+  const locStr=txn.locMismatch?'⚠ Mismatch':txn.city;
+  const reasonStr=reasons.slice(0,2).join(' · ')||'—';
+  const div=document.createElement('div');
+  div.className='feed-item';
+  div.innerHTML=`<span class="fi-badge ${dec}">${dec}</span><div class="fi-info"><div class="fi-row1"><span class="fi-city">${txn.city}</span><span class="fi-type">${txn.type}</span><span class="fi-prob">${Math.round(prob*100)}%</span><span class="fi-loc">${locStr}</span></div><div class="fi-reasons">${reasonStr}</div></div><span class="fi-time">${t}</span>`;
+  strip.insertBefore(div, strip.firstChild);
+  while(strip.children.length>50) strip.removeChild(strip.lastChild);
+  sessionStats.total++; sessionStats.scores.push(prob);
+  if(dec==='BLOCK') sessionStats.blocked++; else if(dec==='REVIEW') sessionStats.review++; else sessionStats.cleared++;
+  updateStats();
+}
+
+function toggleFeed(){
+  if(feedRunning){
+    feedRunning=false; clearInterval(feedInterval);
+    document.getElementById('feedStartBtn').textContent='▶ START Feed';
+    document.getElementById('feedStartBtn').classList.remove('running');
+  } else {
+    feedRunning=true;
+    document.getElementById('feedStartBtn').textContent='⏹ STOP Feed';
+    document.getElementById('feedStartBtn').classList.add('running');
+    feedInterval=setInterval(()=>{
+      const isFraud=Math.random()<0.12;
+      const txn=genTxn(isFraud);
+      const prob=scoreFeedTxn(txn);
+      const THRESHOLD=0.35;
+      const dec=prob>=0.60?'BLOCK':prob>=THRESHOLD?'REVIEW':'ALLOW';
+      const reasons=[];
+      if(txn.ipRisk>0.5) reasons.push('High IP risk');
+      if(txn.sim===1)    reasons.push('SIM changed');
+      if(txn.pin>=3)     reasons.push('Multiple PINs');
+      if(txn.dev===1)    reasons.push('New device');
+      if(txn.hour<6||txn.hour>22) reasons.push('Odd hour');
+      if(txn.vel>=5)     reasons.push('High velocity');
+      if(txn.kyc===2)    reasons.push('KYC rejected');
+      if(txn.locMismatch===1) reasons.push('Location mismatch');
+      addFeedItem(txn,prob,dec,reasons);
+    }, 900);
+  }
+}
+
+function clearFeed(){
+  const strip=document.getElementById('feedStrip');
+  strip.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3);font-size:12px;font-family:\'Space Mono\',monospace">Press START to begin live feed simulation</div>';
+  feedTotal=0;feedBlocked=0;feedReview=0;feedCleared=0;
+  document.getElementById('fsBl').textContent=0;
+  document.getElementById('fsRv').textContent=0;
+  document.getElementById('fsCl').textContent=0;
+  document.getElementById('feedCount').textContent='0 txns';
+}
+
+// Init
+loadScenario('normal');
+</script>
+</body>
+</html>

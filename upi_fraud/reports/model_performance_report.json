@@ -1,0 +1,60 @@
+{
+  "generated_at": "2026-04-09 23:04:21",
+  "paper_reference": "Real-Time UPI Fraud Detection Using Machine Learning \u2014 IJEDR 2026",
+  "dataset": {
+    "size": 105000,
+    "fraud_count": 7319,
+    "legit_count": 97681,
+    "fraud_rate_pct": 6.97,
+    "features_used": 22
+  },
+  "preprocessing": {
+    "duplicates_removed": 0,
+    "smote_applied": true,
+    "normalization": "StandardScaler",
+    "train_test_split": "80/20 stratified"
+  },
+  "model_comparison": {
+    "Logistic Regression": {
+      "accuracy": 0.9533,
+      "precision": 0.603,
+      "recall": 0.9679,
+      "f1": 0.7431,
+      "roc_auc": 0.9885,
+      "note": "Best for basic statistical classification (paper)"
+    },
+    "Random Forest": {
+      "accuracy": 0.9592,
+      "precision": 0.6386,
+      "recall": 0.9549,
+      "f1": 0.7654,
+      "roc_auc": 0.9903,
+      "note": "Most stable \u2014 combines multiple behavioural features (paper)"
+    },
+    "Gradient Boosting": {
+      "accuracy": 0.9712,
+      "precision": 0.7836,
+      "recall": 0.8115,
+      "f1": 0.7973,
+      "roc_auc": 0.9914,
+      "note": "Detects delicate fraudulent signals (paper)"
+    }
+  },
+  "best_model": {
+    "name": "Gradient Boosting",
+    "threshold": 0.4251,
+    "accuracy": 0.9712,
+    "recall": 0.8115,
+    "roc_auc": 0.9914
+  },
+  "alert_summary": {
+    "total_flagged": 1643,
+    "true_fraud_caught": 1257,
+    "false_alarms": 386
+  },
+  "paper_findings": {
+    "Random Forest": "Most stable \u2014 combines multiple behavioural features",
+    "Logistic Regression": "Best suited for basic statistical classification",
+    "Gradient Boosting": "Detects more delicate fraudulent signals"
+  }
+}
