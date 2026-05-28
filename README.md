@@ -80,16 +80,16 @@ The model analyzes various transaction features like amount, time, merchant type
 ---
 
 ## 📁 Project Structure
-UPI_Fraud_Detection/
-├── data/
-├── notebooks/
-├── models/
-├── src/
-│   ├── preprocessing.py
-│   ├── feature_engineering.py
-│   ├── model_training.py
-│   └── utils.py
-├── streamlit_app.py
-├── requirements.txt
-├── README.md
+UPI_Fraud_Detection/ /n
+├── data/ /n
+├── notebooks/ /n
+├── models/  /n
+├── src/  /n
+│   ├── preprocessing.py  /n
+│   ├── feature_engineering.py  /n
+│   ├── model_training.py   /n
+│   └── utils.py  /n
+├── streamlit_app.py /n
+├── requirements.txt /n
+├── README.md /n
 └── .gitignore
