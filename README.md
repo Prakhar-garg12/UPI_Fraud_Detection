@@ -1,95 +1,109 @@
 # UPI Fraud Detection System
 
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Scikit-learn](https://img.shields.io/badge/scikit--learn-%23F7931E.svg?style=for-the-badge&logo=scikit-learn&logoColor=white)
-![Pandas](https://img.shields.io/badge/pandas-%23150458.svg?style=for-the-badge&logo=pandas&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
+![Scikit-learn](https://img.shields.io/badge/scikit--learn-%23F7931E.svg?style=for-the-badge&logo=scikit-learn&logoColor=white)
 
-**A Machine Learning based system to detect fraudulent UPI transactions in real-time.**
+**A Machine Learning based real-time UPI Fraud Detection System**
 
 ---
 
 ## 📋 Table of Contents
 - [Overview](#overview)
+- [Demo Screenshots](#demo-screenshots)
 - [Features](#features)
 - [Dataset](#dataset)
-- [Technologies Used](#technologies-used)
 - [Model Performance](#model-performance)
+- [Technologies Used](#technologies-used)
 - [Project Structure](#project-structure)
 - [How to Run](#how-to-run)
 - [Future Enhancements](#future-enhancements)
 - [Contributing](#contributing)
 - [License](#license)
-- [Contact](#contact)
 
 ---
 
 ## 🌟 Overview
 
-With the rapid growth of **UPI (Unified Payments Interface)** in India, fraud cases have also increased significantly. This project aims to build an intelligent system that can **detect fraudulent UPI transactions** using Machine Learning.
+With the massive growth of **UPI transactions** in India, fraud cases have also increased significantly. This project aims to detect **fraudulent UPI transactions** in real-time using Machine Learning.
 
-The model analyzes various transaction features like amount, time, merchant type, device info, transaction pattern, etc., to classify a transaction as **Fraudulent** or **Legitimate**.
+The system analyzes various transaction features and predicts whether a transaction is **Fraudulent** or **Legitimate**.
+
+---
+
+## 📸 Demo Screenshots
+
+*(Add your screenshots here)*
+
+![Streamlit Dashboard](images/dashboard.png)  
+![Fraud Prediction Result](images/prediction.png)  
+![Model Performance](images/performance.png)
 
 ---
 
 ## ✨ Features
 
 - Real-time UPI fraud prediction
-- Interactive web interface using **Streamlit**
-- Multiple ML models comparison (Random Forest, XGBoost, LightGBM, etc.)
-- Feature importance analysis
-- Transaction history & analytics dashboard
-- High accuracy with class imbalance handling
-- Model explainability using SHAP
+- Interactive Streamlit Web Application
+- Multiple ML Models (XGBoost, Random Forest, LightGBM)
+- Feature Importance Visualization
+- Transaction Analytics Dashboard
+- Download Prediction Report
 
 ---
 
 ## 📊 Dataset
 
 - **Source**: Synthetic + Real-world inspired UPI transaction data
-- **Total Records**: ~1,00,000+
-- **Class Distribution**: Highly imbalanced (Fraud vs Legitimate)
-- **Key Features**: Transaction Amount, Time, Location, Device Type, Merchant Category, Previous Transaction History, etc.
-
-*(Dataset is available in the `/data` folder)*
-
----
-
-## 🛠 Technologies Used
-
-- **Language**: Python 3.9+
-- **ML Libraries**: Scikit-learn, XGBoost, LightGBM, Imbalanced-learn
-- **Data Processing**: Pandas, NumPy
-- **Visualization**: Matplotlib, Seaborn, Plotly
-- **Web App**: Streamlit
-- **Model Explainability**: SHAP
-- **Version Control**: Git & GitHub
+- **Records**: ~1,00,000+
+- **Target Variable**: Fraud (1) / Legitimate (0)
 
 ---
 
 ## 📈 Model Performance
 
-| Model                | Accuracy | Precision | Recall  | F1-Score | AUC-ROC |
-|----------------------|----------|-----------|---------|----------|---------|
-| XGBoost              | 98.7%    | 0.96      | 0.89    | 0.92     | 0.98    |
-| Random Forest        | 97.9%    | 0.94      | 0.85    | 0.89     | 0.97    |
-| LightGBM             | 98.4%    | 0.95      | 0.88    | 0.91     | 0.98    |
+| Model                | Accuracy | Precision | Recall | F1-Score | AUC-ROC |
+|----------------------|----------|-----------|--------|----------|---------|
+| **XGBoost**          | **98.7%**| **0.96**  | 0.89   | **0.92** | **0.98** |
+| LightGBM             | 98.4%    | 0.95      | 0.88   | 0.91     | 0.98    |
+| Random Forest        | 97.9%    | 0.94      | 0.85   | 0.89     | 0.97    |
 
-**Best Model**: XGBoost (Used in deployment)
+---
+
+## 🛠 Technologies Used
+
+- **Language**: Python
+- **ML Frameworks**: Scikit-learn, XGBoost, LightGBM
+- **Frontend**: Streamlit
+- **Data Handling**: Pandas, NumPy
+- **Visualization**: Plotly, Seaborn, Matplotlib
 
 ---
 
 ## 📁 Project Structure
-UPI_Fraud_Detection/ /n
-├── data/ /n
-├── notebooks/ /n
-├── models/  /n
-├── src/  /n
-│   ├── preprocessing.py  /n
-│   ├── feature_engineering.py  /n
-│   ├── model_training.py   /n
-│   └── utils.py  /n
-├── streamlit_app.py /n
-├── requirements.txt /n
-├── README.md /n
+
+
+UPI_Fraud_Detection/
+├── data/
+├── notebooks/
+├── models/
+├── src/
+│   ├── preprocessing.py
+│   ├── feature_engineering.py
+│   ├── model_training.py
+│   └── utils.py
+├── streamlit_app.py
+├── requirements.txt
+├── README.md
 └── .gitignore
+
+
+# Clone the repository
+git clone https://github.com/Prakhar-garg12/UPI_Fraud_Detection.git
+cd UPI_Fraud_Detection
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the application
+streamlit run streamlit_app.py
